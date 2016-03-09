@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <event name="pimgento_import_step_start">
+        <observer name="pimgento.import.step.start" instance="Pimgento\Log\Observer\PimgentoImportStepStartObserver" />
+    </event>
+    <event name="pimgento_import_step_finish">
+        <observer name="pimgento.import.step.finish" instance="Pimgento\Log\Observer\PimgentoImportStepFinishObserver" />
+    </event>
+</config>

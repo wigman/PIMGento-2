@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <add id="Pimgento_Import::pimgento" title="Pimgento" module="Pimgento_Import" parent="Magento_Backend::system" sortOrder="100" resource="Pimgento_Import::pimgento" />
+        <add id="Pimgento_Import::pimgento_import" title="Import" module="Pimgento_Import" parent="Pimgento_Import::pimgento" sortOrder="10" resource="Pimgento_Import::pimgento_import" action="pimgento/import" />
+    </menu>
+</config>

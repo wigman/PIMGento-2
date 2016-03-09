@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <event name="pimgento_load_import">
+        <observer name="pimgento.category" instance="Pimgento\Category\Observer\AddPimgentoImportObserver" />
+    </event>
+    <event name="catalog_category_delete_after">
+        <observer name="magento.category.delete" instance="Pimgento\Category\Observer\RemovePimgentoCodeObserver" />
+    </event>
+</config>

@@ -1,0 +1,25 @@
+<?php /** @var $block Pimgento\Log\Block\Adminhtml\Log\View **/ ?>
+
+<div class="page-main-actions">
+    <div class="page-actions-placeholder"></div>
+    <div class="page-actions" data-ui-id="page-actions-toolbar-content-header">
+        <div class="page-actions-inner" data-title="Performance">
+            <div class="page-actions-buttons">
+                <button type="button" class="action-default scalable action-back" onclick="setLocation('<?php echo $block->getBackUrl() ?>')" data-ui-id="page-actions-toolbar-back-button">
+                    <span><?php echo __('Back') ?></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ul class="pimgento-console">
+    <?php $log = $block->getLog(); ?>
+    <li><?php echo $log->getCode() ?> <?php echo $log->getFile() ?></li>
+    <?php $steps = $block->getSteps(); ?>
+    <?php $previous = null; ?>
+    <?php foreach ($steps as $step): ?>
+        <li class="<?php echo !$step['status'] ? 'error' : ($previous == $step['number'] ? 'success' : '') ?>"><?php echo $step['message'] ?></li>
+        <?php $previous = $step['number'] ?>
+    <?php endforeach; ?>
+</ul>

@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <add id="Pimgento_Log::pimgento_log" title="Log" module="Pimgento_Log" parent="Pimgento_Import::pimgento" sortOrder="20" resource="Pimgento_Log::pimgento_log" action="pimgento/log" />
+    </menu>
+</config>

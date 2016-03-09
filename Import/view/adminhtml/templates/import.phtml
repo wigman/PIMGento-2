@@ -1,0 +1,53 @@
+<?php /** @var $block Pimgento\Import\Block\Adminhtml\Import **/ ?>
+<div class="pimgento-uploader">
+    <div class="pimgento-step">
+        <h2><?php echo __('Select import type:') ?></h2>
+        <div class="pimgento-types">
+            <?php $collection = $block->getCollection() ?>
+            <?php foreach ($collection as $import): ?>
+                <div class="import-type" onclick="Pimgento.type('<?php echo $import->getCode() ?>', this)"><?php echo $import->getName() ?></div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+    <div class="pimgento-step">
+        <h2><?php echo __('Select file to import:') ?></h2>
+        <div id="<?php echo $htmlId; ?>-container" class="pimgento-files" data-mage-init='{"baseImage":{}}' data-max-file-size="<?php echo $fileMaxSize; ?>">
+            <div class="image image-placeholder">
+                <input type="file"
+                       name="file"
+                       data-url="<?php echo $uploadUrl; ?>"
+                       multiple="multiple" />
+                <p class="image-placeholder-text"><?php echo $filePlaceholderText; ?></p>
+            </div>
+            <script id="<?php echo $htmlId; ?>-template"
+                    data-template="image"
+                    type="text/x-magento-template">
+                <div class="import-file" onclick="Pimgento.file('<%- data.file %>', this)">
+                    <%- data.file %>
+                </div>
+            </script>
+        </div>
+        <div id="media_gallery_content"></div>
+    </div>
+    <div class="pimgento-step step-last">
+        <button type="button" class="primary" onclick="Pimgento.run()">
+            <span class="ui-button-text">
+                <span><?php echo __('Import') ?></span>
+            </span>
+        </button>
+    </div>
+</div>
+
+<ul class="pimgento-console">
+    <li class="selected"><?php echo __('Waiting for import...') ?></li>
+</ul>
+
+<script>
+    require(
+        ["Pimgento_Import/js/pimgento"],
+        function(pimgento) {
+            pimgento.init('<?php echo $runUrl; ?>', '.pimgento-console');
+            window.Pimgento = pimgento;
+        }
+    );
+</script>

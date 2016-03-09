@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <title>Pimgento Log</title>
+        <css src="Pimgento_Import::css/style.css"/>
+    </head>
+    <body>
+        <referenceContainer name="content">
+            <block class="Pimgento\Log\Block\Adminhtml\Log\View" name="adminhtml.pimgento.log.view" template="Pimgento_Log::view.phtml"/>
+        </referenceContainer>
+    </body>
+</page>
