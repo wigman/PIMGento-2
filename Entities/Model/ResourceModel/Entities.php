@@ -197,9 +197,10 @@ class Entities extends AbstractDb
      * @param string $entityTable
      * @param string $entityKey
      * @param string $import
+     * @param string $prefix
      * @return $this
      */
-    public function matchEntity($tableName, $pimKey, $entityTable, $entityKey, $import)
+    public function matchEntity($tableName, $pimKey, $entityTable, $entityKey, $import, $prefix = null)
     {
         $connection = $this->getConnection();
 
@@ -213,7 +214,7 @@ class Entities extends AbstractDb
             UPDATE `' . $tableName . '` t
             SET `_entity_id` = (
                 SELECT `entity_id` FROM `' . $pimgentoTable . '` c
-                WHERE t.`' . $pimKey . '` = c.`code`
+                WHERE ' . ($prefix ? 'CONCAT(t.`' . $prefix . '`, "_", t.`' . $pimKey . '`)' : 't.`' . $pimKey . '`') . ' = c.`code`
                     AND c.`import` = "' . $import . '"
             )
         ');
@@ -235,7 +236,7 @@ class Entities extends AbstractDb
                 $tableName,
                 array(
                     'import'     => new Expr("'" . $import . "'"),
-                    'code'       => $pimKey,
+                    'code'       => $prefix ? new Expr('CONCAT(`' . $prefix . '`, "_", `' . $pimKey . '`)') : $pimKey,
                     'entity_id'  => '_entity_id'
                 )
             )->where('_is_new = ?', 1);
