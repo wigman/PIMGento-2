@@ -90,6 +90,23 @@ class Import extends Factory
      */
     public function matchEntity()
     {
+        $connection = $this->_entities->getResource()->getConnection();
+
+        $select = $connection->select()
+            ->from(
+                'eav_attribute',
+                array(
+                    'import'     => new Expr('"attribute"'),
+                    'code'       => 'attribute_code',
+                    'entity_id'  => 'attribute_id',
+                )
+            )
+            ->where('entity_type_id = ?', 4);
+
+        $connection->query(
+            $connection->insertFromSelect($select,  'pimgento_entities', array('import', 'code', 'entity_id'), 2)
+        );
+
         $this->_entities->matchEntity($this->getCode(), 'code', 'eav_attribute', 'attribute_id');
     }
 
@@ -166,8 +183,31 @@ class Import extends Factory
 
         while (($row = $query->fetch())) {
 
-            /* @TODO Insert attribute with generated _entity_id */
+            /* Insert base data (ignore if already exists) */
+            $values = array(
+                'attribute_id'   => $row['_entity_id'],
+                'entity_type_id' => 4,
+                'attribute_code' => $row['code'],
+            );
+            $connection->insertOnDuplicate('eav_attribute', $values, array_keys($values));
 
+            $values = array(
+                'attribute_id' => $row['_entity_id'],
+            );
+            $connection->insertOnDuplicate('catalog_eav_attribute', $values, array_keys($values));
+
+            /* Retrieve default admin label */
+            $stores = $this->_helperConfig->getStores('id');
+
+            $frontendLabel = __('Unknown');
+            if (isset($stores[0])) {
+                $admin = reset($stores[0]);
+                if (isset($row['label-' . $admin['lang']])) {
+                    $frontendLabel = $row['label-' . $admin['lang']];
+                }
+            }
+
+            /* Retrieve attribute scope */
             $global = 1; // Global
             if ($row['scopable'] == 1) {
                 $global = 2; // Website
@@ -176,30 +216,57 @@ class Import extends Factory
                 $global = 0; // Store View
             }
 
-            $this->_eavSetup->addAttribute(
-                \Magento\Catalog\Model\Product::ENTITY,
-                $row['code'],
-                [
-                    'type'                     => $row['backend_type'],
-                    'backend'                  => $row['backend_model'],
-                    'input'                    => $row['frontend_input'],
-                    'source'                   => $row['source_model'],
-                    'label'                    => __('Default'), // @TODO Default store label (label-xx_XX)
-                    'required'                 => 0,
-                    'user_defined'             => 1,
-                    'unique'                   => $row['unique'],
-                    'global'                   => $global,
-                    'is_visible'               => 1,
-                    'is_searchable'            => 0,
-                    'is_comparable'            => 0,
-                    'is_visible_on_front'      => 0,
-                    'is_filterable'            => 0,
-                    'is_filterable_in_search'  => 0,
-                    'is_html_allowed_on_front' => 0,
-                    'apply_to'                 => ''
-                ]
+            // @TODO remove field on update (avoid erase configuration)
+
+            /* Attribute data */
+            $data = Array(
+                'entity_type_id' => 4,
+                'attribute_code' => $row['code'],
+                'backend_model' => $row['backend_model'],
+                'backend_type' => $row['backend_type'],
+                'backend_table' => null,
+                'frontend_model' => null,
+                'frontend_input' => $row['frontend_input'],
+                'frontend_label' => $frontendLabel,
+                'frontend_class' => null,
+                'source_model' => $row['source_model'],
+                'is_required' => 0,
+                'is_user_defined' => 1,
+                'default_value' => null,
+                'is_unique' => $row['unique'],
+                'note' => null,
+                'is_global' => $global,
+                'is_visible' => 1,
+                'is_system' => 1,
+                'input_filter' => null,
+                'multiline_count' => 0,
+                'validate_rules' => null,
+                'data_model' => null,
+                'sort_order' => 0,
+                'is_used_in_grid' => 0,
+                'is_visible_in_grid' => 0,
+                'is_filterable_in_grid' => 0,
+                'is_searchable_in_grid' => 0,
+                'frontend_input_renderer' => null,
+                'is_searchable' => 0,
+                'is_filterable' => 0,
+                'is_comparable' => 0,
+                'is_visible_on_front' => 0,
+                'is_wysiwyg_enabled' => 0,
+                'is_html_allowed_on_front' => 0,
+                'is_visible_in_advanced_search' => 0,
+                'is_filterable_in_search' => 0,
+                'used_in_product_listing' => 0,
+                'used_for_sort_by' => 0,
+                'apply_to' => null,
+                'position' => 0,
+                'is_used_for_promo_rules' => 0,
+                'is_configurable' => 1,
             );
 
+            $this->_eavSetup->updateAttribute(4, $row['_entity_id'], $data, null, 0);
+
+            /* Add Attribute to group and family */
             if ($row['_attribute_set_id'] && $row['group']) {
                 $attributeSetIds = explode(',', $row['_attribute_set_id']);
 
@@ -217,7 +284,22 @@ class Import extends Factory
                 }
             }
 
-            /* @TODO add store labels */
+            /* Add store labels */
+            $stores = $this->_helperConfig->getStores('lang');
+
+            foreach ($stores as $lang => $data) {
+                if (isset($row['label-' . $lang])) {
+                    foreach ($data as $store) {
+                        $values = array(
+                            'attribute_id' => $row['_entity_id'],
+                            'store_id' => $store['store_id'],
+                            'value' => $row['label-' . $lang]
+                        );
+                        $connection->insertOnDuplicate('eav_attribute_label', $values, array_keys($values));
+                    }
+                }
+            }
+
         }
 
     }

@@ -59,7 +59,7 @@ class Config extends AbstractHelper
      */
     public function getStores($arrayKey = 'id')
     {
-        $stores   = $this->_storeManager->getStores(true);
+        $stores = $this->_storeManager->getStores(true);
 
         $data = array();
 
