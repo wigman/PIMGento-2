@@ -20,7 +20,8 @@
       "Entities/registration.php",
       "Family/registration.php",
       "Import/registration.php",
-      "Log/registration.php"
+      "Log/registration.php",
+      "Option/registration.php"
     ],
     "psr-4": {
       "Pimgento\\": ""
