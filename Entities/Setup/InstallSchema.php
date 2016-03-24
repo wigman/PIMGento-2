@@ -63,6 +63,15 @@ class InstallSchema implements InstallSchemaInterface
                 ['nullable' => false, 'default' => Table::TIMESTAMP_INIT],
                 'Creation Time'
             )
+            ->addIndex(
+                $installer->getIdxName(
+                    'pimgento_entities',
+                    ['import', 'code', 'entity_id'],
+                    \Magento\Framework\DB\Adapter\AdapterInterface::INDEX_TYPE_UNIQUE
+                ),
+                ['import', 'code', 'entity_id'],
+                ['type' => \Magento\Framework\DB\Adapter\AdapterInterface::INDEX_TYPE_UNIQUE]
+            )
             ->setComment('Pimgento Entities Relation');
 
         $installer->getConnection()->createTable($table);
