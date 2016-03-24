@@ -12,10 +12,10 @@ Enable and install module(s) in Magento:
 php bin/magento module:enable Pimgento_Import
 php bin/magento module:enable Pimgento_Entities
 php bin/magento module:enable Pimgento_Log
-php bin/magento module:enable Pimgento_Demo
 php bin/magento module:enable Pimgento_Category
 php bin/magento module:enable Pimgento_Family
-//php bin/magento module:enable Pimgento_Attribute [under development]
+php bin/magento module:enable Pimgento_Attribute
+php bin/magento module:enable Pimgento_Option
 ```
 
 Check and update database setup:
