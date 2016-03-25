@@ -59,7 +59,7 @@ class Import extends Factory
     {
         $file = $this->getUploadDir() . '/' . $this->getFile();
 
-        $this->_entities->createTmpTableFromFile($file, $this->getCode(), array('code', 'label'));
+        $this->_entities->createTmpTableFromFile($file, $this->getCode(), array('sku'));
     }
 
     /**
@@ -81,7 +81,7 @@ class Import extends Factory
      */
     public function matchEntity()
     {
-        $this->_entities->matchEntity($this->getCode(), 'code', 'eav_attribute_set', 'attribute_set_id');
+        $this->_entities->matchEntity($this->getCode(), 'sku', 'catalog_product_entity', 'entity_id');
     }
 
     /**
@@ -89,7 +89,7 @@ class Import extends Factory
      */
     public function dropTable()
     {
-        $this->_entities->dropTable($this->getCode());
+        // $this->_entities->dropTable($this->getCode());
     }
 
     /**
