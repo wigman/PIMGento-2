@@ -38,6 +38,14 @@ class AddPimgentoImportObserver implements ObserverInterface
                         'method'  => 'matchEntity',
                     ),
                     array(
+                        'comment' => __('Add product required data'),
+                        'method'  => 'addRequiredData',
+                    ),
+                    array(
+                        'comment' => __('Match family code with Magento id'),
+                        'method'  => 'updateAttributeSetId',
+                    ),
+                    array(
                         'comment' => __('Drop  temporary table'),
                         'method'  => 'dropTable',
                     ),

@@ -85,11 +85,52 @@ class Import extends Factory
     }
 
     /**
+     * Add required data
+     */
+    public function addRequiredData()
+    {
+        $connection = $this->_entities->getResource()->getConnection();
+        $tmpTable = $this->_entities->getTableName($this->getCode());
+
+        $connection->addColumn($tmpTable, '_type_id', 'VARCHAR(255) NOT NULL DEFAULT "simple"');
+        $connection->addColumn($tmpTable, '_options_container', 'VARCHAR(255) NOT NULL DEFAULT "container2"');
+        $connection->addColumn($tmpTable, '_tax_class_id', 'INT(11) NOT NULL DEFAULT 0'); // None
+        $connection->addColumn($tmpTable, '_attribute_set_id', 'VARCHAR(255) NOT NULL DEFAULT "4"'); // Default
+    }
+
+    /**
+     * Update product attribute set id
+     */
+    public function updateAttributeSetId()
+    {
+        $connection = $this->_entities->getResource()->getConnection();
+        $tmpTable = $this->_entities->getTableName($this->getCode());
+
+        if (!$connection->tableColumnExists($tmpTable, 'family')) {
+            $this->setMessage(
+                __('Column family is missing')
+            );
+        } else {
+            $families = $connection->select()
+                ->from(false, array('_attribute_set_id' => 'c.entity_id'))
+                ->joinLeft(
+                    array('c' => $connection->getTableName('pimgento_entities')),
+                    'p.family = c.code AND c.import = "family"',
+                    array()
+                );
+
+            $connection->query(
+                $connection->updateFromSelect($families, array('p' => $tmpTable))
+            );
+        }
+    }
+
+    /**
      * Drop temporary table
      */
     public function dropTable()
     {
-        // $this->_entities->dropTable($this->getCode());
+        $this->_entities->dropTable($this->getCode());
     }
 
     /**
