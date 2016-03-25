@@ -204,7 +204,7 @@ class Entities extends AbstractDb
     {
         $connection = $this->getConnection();
 
-        $connection->delete($tableName, array('code = ?' => ''));
+        $connection->delete($tableName, array($pimKey . ' = ?' => ''));
 
         $pimgentoTable = $connection->getTableName('pimgento_entities');
         $entityTable   = $connection->getTableName($entityTable);
