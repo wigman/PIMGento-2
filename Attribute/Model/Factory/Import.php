@@ -150,24 +150,39 @@ class Import extends Factory
      */
     public function matchFamily()
     {
-        /* @TODO comma separated families */
-
         $connection = $this->_entities->getResource()->getConnection();
         $tmpTable = $this->_entities->getTableName($this->getCode());
 
-        $connection->addColumn($tmpTable, '_attribute_set_id', 'INT(11) NULL');
+        $connection->addColumn($tmpTable, '_attribute_set_id', 'VARCHAR(255) NULL');
 
-        $select = $connection->select()
-            ->from(false, array())
-            ->joinInner(
-                array('e' => 'pimgento_entities'),
-                'e.code = a.families AND e.import = "family"',
-                array('_attribute_set_id' => 'e.entity_id')
-            );
+        $import = $connection->select()->from($tmpTable, array('_entity_id', 'families'));
+        $query  = $connection->query($import);
 
-        $connection->query(
-            $connection->updateFromSelect($select, array('a' => $tmpTable))
+        $familyCodes = $connection->fetchPairs(
+            $connection->select()
+                ->from($connection->getTableName('pimgento_entities'), array('code', 'entity_id'))
+                ->where('import = ?', 'family')
         );
+
+        while (($row = $query->fetch())) {
+            $families = explode(',', $row['families']);
+
+            $ids = array();
+
+            foreach ($families as $familyCode) {
+                if (isset($familyCodes[$familyCode])) {
+                    $ids[] = $familyCodes[$familyCode];
+                }
+            }
+
+            if (count($ids)) {
+                $connection->update(
+                    $tmpTable,
+                    array('_attribute_set_id' => join(',', $ids)),
+                    array('_entity_id = ?' => $row['_entity_id'])
+                );
+            }
+        }
     }
 
     /**
@@ -272,14 +287,8 @@ class Import extends Factory
 
                 foreach ($attributeSetIds as $attributeSetId) {
                     if (is_numeric($attributeSetId)) {
-                        $this->_eavSetup->addAttributeGroup(4, $row['_attribute_set_id'], ucfirst($row['group']));
-                        $this->_eavSetup->addAttributeToSet(
-                            4,
-                            $attributeSetId,
-                            ucfirst($row['group']),
-                            $row['code'],
-                            null
-                        );
+                        $this->_eavSetup->addAttributeGroup(4, $attributeSetId, ucfirst($row['group']));
+                        $this->_eavSetup->addAttributeToSet(4, $attributeSetId, ucfirst($row['group']), $row['_entity_id']);
                     }
                 }
             }
