@@ -294,6 +294,11 @@ class Import extends Factory
 
             if ($connection->tableColumnExists($tmpTable, '_url_rewrite-' . $local)) {
                 foreach ($affected as $store) {
+
+                    if ($store['store_id'] == 0) {
+                        continue;
+                    }
+
                     $values = array(
                         'entity_type'      => new Expr('"category"'),
                         'entity_id'        => '_entity_id',
