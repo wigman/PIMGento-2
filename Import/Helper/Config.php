@@ -54,51 +54,71 @@ class Config extends AbstractHelper
     /**
      * Retrieve all stores information
      *
-     * @param string $arrayKey
+     * @param string|array $arrayKey
      * @return array
      */
-    public function getStores($arrayKey = 'id')
+    public function getStores($arrayKey = 'store_id')
     {
         $stores = $this->_storeManager->getStores(true);
 
         $data = array();
 
+        if (!is_array($arrayKey)) {
+            $arrayKey = array($arrayKey);
+        }
+
         foreach ($stores as $store) {
 
-            switch ($arrayKey) {
-                case 'id':
-                    $key = $store->getId();
-                    break;
-                case 'lang':
-                    $key = $this->scopeConfig->getValue(
-                        'general/locale/code', ScopeInterface::SCOPE_STORE, $store->getId()
-                    );
-                    break;
-                case 'currency':
-                    $key = $this->scopeConfig->getValue(
-                        'currency/options/default', ScopeInterface::SCOPE_STORE, $store->getId()
-                    );
-                    break;
-                case 'website_id':
-                    $key = $store->getWebsiteId();
-                    break;
-                default:
-                    $key = $store->getId();
-                    break;
+            $website = $this->_storeManager->getWebsite($store->getWebsiteId());
+
+            $combine = array();
+
+            foreach ($arrayKey as $key) {
+                switch ($key) {
+                    case 'store_id':
+                        $combine[] = $store->getId();
+                        break;
+                    case 'store_code':
+                        $combine[] = $store->getCode();
+                        break;
+                    case 'website_id':
+                        $combine[] = $website->getId();
+                        break;
+                    case 'website_code':
+                        $combine[] = $website->getCode();
+                        break;
+                    case 'lang':
+                        $combine[] = $this->scopeConfig->getValue(
+                            'general/locale/code', ScopeInterface::SCOPE_STORE, $store->getId()
+                        );
+                        break;
+                    case 'currency':
+                        $combine[] = $this->scopeConfig->getValue(
+                            'currency/options/default', ScopeInterface::SCOPE_STORE, $store->getId()
+                        );
+                        break;
+                    default:
+                        $combine[] = $store->getId();
+                        break;
+                }
+
             }
+
+            $key = join('-', $combine);
 
             if (!isset($data[$key])) {
                 $data[$key] = array();
             }
 
             $data[$key][] = array(
-                'store_id'   => $store->getId(),
-                'code'       => $store->getCode(),
-                'website_id' => $store->getWebsiteId(),
-                'lang'       => $this->scopeConfig->getValue(
+                'store_id'     => $store->getId(),
+                'store_code'   => $store->getCode(),
+                'website_id'   => $website->getId(),
+                'website_code' => $website->getCode(),
+                'lang'         => $this->scopeConfig->getValue(
                     'general/locale/code', ScopeInterface::SCOPE_STORE, $store->getId()
                 ),
-                'currency'   => $this->scopeConfig->getValue(
+                'currency'     => $this->scopeConfig->getValue(
                     'currency/options/default', ScopeInterface::SCOPE_STORE, $store->getId()
                 ),
             );
