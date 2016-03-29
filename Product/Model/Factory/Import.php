@@ -59,7 +59,7 @@ class Import extends Factory
     {
         $file = $this->getUploadDir() . '/' . $this->getFile();
 
-        $this->_entities->createTmpTableFromFile($file, $this->getCode(), array('sku'));
+        $this->_entities->createTmpTableFromFile($file, $this->getCode(), 'sku', array('sku'));
     }
 
     /**
@@ -95,7 +95,18 @@ class Import extends Factory
         $connection->addColumn($tmpTable, '_type_id', 'VARCHAR(255) NOT NULL DEFAULT "simple"');
         $connection->addColumn($tmpTable, '_options_container', 'VARCHAR(255) NOT NULL DEFAULT "container2"');
         $connection->addColumn($tmpTable, '_tax_class_id', 'INT(11) NOT NULL DEFAULT 0'); // None
-        $connection->addColumn($tmpTable, '_attribute_set_id', 'VARCHAR(255) NOT NULL DEFAULT "4"'); // Default
+        $connection->addColumn($tmpTable, '_attribute_set_id', 'INT(11) NOT NULL DEFAULT "4"'); // Default
+        $connection->addColumn($tmpTable, '_visibility', 'INT(11) NOT NULL DEFAULT "4"'); // catalog, search
+
+        if (!$connection->tableColumnExists($tmpTable, 'url_key')) {
+            $connection->addColumn($tmpTable, 'url_key', 'varchar(255) NOT NULL DEFAULT ""');
+            $connection->update($tmpTable, array('url_key' => new Expr('`sku`')));
+        }
+
+        if ($connection->tableColumnExists($tmpTable, 'enabled')) {
+            $connection->addColumn($tmpTable, '_status', 'INT(11) NOT NULL DEFAULT "2"');
+            $connection->update($tmpTable, array('_status' => new Expr('IF(`enabled` <> 1, 2, 1)')));
+        }
     }
 
     /**
@@ -122,6 +133,286 @@ class Import extends Factory
             $connection->query(
                 $connection->updateFromSelect($families, array('p' => $tmpTable))
             );
+        }
+    }
+
+    /**
+     * Replace option code by id
+     */
+    public function updateOption()
+    {
+        $connection = $this->_entities->getResource()->getConnection();
+        $tmpTable = $this->_entities->getTableName($this->getCode());
+
+        $columns = array_keys($connection->describeTable($tmpTable));
+
+        $except = array(
+            '_entity_id',
+            '_is_new',
+            '_status',
+            '_type_id',
+            '_options_container',
+            '_tax_class_id',
+            '_attribute_set_id',
+            '_visibility',
+            'sku',
+            'categories',
+            'family',
+            'groups',
+            'url_key',
+        );
+
+        foreach ($columns as $column) {
+
+            if (in_array($column, $except)) {
+                continue;
+            }
+
+            $columnPrefix = explode('-', $column);
+            $columnPrefix = reset($columnPrefix);
+
+            if ($connection->tableColumnExists($tmpTable, $column)) {
+                $select = $connection->select()
+                    ->from(
+                        array('p' => $tmpTable),
+                        array(
+                            'sku'       => 'p.sku',
+                            'entity_id' => 'p._entity_id'
+                        )
+                    )
+                    ->distinct()
+                    ->joinInner(
+                        array(
+                            'c' => $connection->getTableName('pimgento_entities')
+                        ),
+                        'FIND_IN_SET(REPLACE(`c`.`code`,"' . $columnPrefix . '_",""), `p`.`' . $column . '`)
+                        AND `c`.`import` = "option"',
+                        array(
+                            $column => new Expr('GROUP_CONCAT(`c`.`entity_id` SEPARATOR ",")')
+                        )
+                    )
+                    ->group('p.sku');
+
+                $connection->query(
+                    $connection->insertFromSelect($select, $tmpTable, array('sku', '_entity_id', $column), 1)
+                );
+            }
+        }
+    }
+
+    /**
+     * Create product entities
+     */
+    public function createEntities()
+    {
+        $connection = $this->_entities->getResource()->getConnection();
+        $tmpTable = $this->_entities->getTableName($this->getCode());
+
+        $values = array(
+            'entity_id'        => '_entity_id',
+            'attribute_set_id' => '_attribute_set_id',
+            'type_id'          => '_type_id',
+            'sku'              => 'sku',
+            'has_options'      => new Expr(0),
+            'required_options' => new Expr(0),
+            'updated_at'       => new Expr('now()'),
+        );
+
+        $parents = $connection->select()->from($tmpTable, $values);
+        $connection->query(
+            $connection->insertFromSelect(
+                $parents, $connection->getTableName('catalog_product_entity'), array_keys($values), 1
+            )
+        );
+
+        $values = array(
+            'created_at' => new Expr('now()')
+        );
+        $connection->update($connection->getTableName('catalog_product_entity'), $values, 'created_at IS NULL');
+    }
+
+    /**
+     * Set values to attributes
+     */
+    public function setValues()
+    {
+        $connection = $this->_entities->getResource()->getConnection();
+        $tmpTable = $this->_entities->getTableName($this->getCode());
+
+        $stores = array_merge(
+            $this->_helperConfig->getStores(array('lang')), // en_US
+            $this->_helperConfig->getStores(array('website_code')), // channel
+            $this->_helperConfig->getStores(array('website_code', 'lang')), // channel-en_US
+            $this->_helperConfig->getStores(array('currency')), // USD
+            $this->_helperConfig->getStores(array('website', 'currency')), // channel-USD
+            $this->_helperConfig->getStores(array('lang', 'website', 'currency')) // en_US-channel-USD
+        );
+
+        $columns = array_keys($connection->describeTable($tmpTable));
+
+        $except = array(
+            '_entity_id',
+            '_is_new',
+            '_status',
+            '_type_id',
+            '_options_container',
+            '_tax_class_id',
+            '_attribute_set_id',
+            '_visibility',
+            'sku',
+            'categories',
+            'family',
+            'groups',
+        );
+
+        $values = array(
+            0 => array(
+                'options_container' => '_options_container',
+                'tax_class_id'      => '_tax_class_id',
+                'visibility'        => '_visibility',
+                'status'            => '_status',
+            )
+        );
+
+        foreach ($columns as $column) {
+            if (in_array($column, $except)) {
+                continue;
+            }
+
+            $columnPrefix = explode('-', $column);
+            $columnPrefix = reset($columnPrefix);
+
+            $values[0][$columnPrefix] = $column;
+
+            foreach ($stores as $suffix => $affected) {
+                if (preg_match('/' . $suffix . '$/', $column)) {
+                    foreach ($affected as $store) {
+                        if (!isset($values[$store['store_id']])) {
+                            $values[$store['store_id']] = array();
+                        }
+                        $values[$store['store_id']][$columnPrefix] = $column;
+                    }
+                }
+            }
+
+        }
+
+        foreach($values as $storeId => $data) {
+            $this->_entities->setValues($this->getCode(), 'catalog_product_entity', $data, 4, $storeId, 1);
+        }
+    }
+
+    /**
+     * Set website
+     */
+    public function setWebsites()
+    {
+        $connection = $this->_entities->getResource()->getConnection();
+        $tmpTable = $this->_entities->getTableName($this->getCode());
+
+        $websites = $this->_helperConfig->getStores('website_id');
+
+        foreach ($websites as $websiteId => $affected) {
+            if ($websiteId == 0) {
+                continue;
+            }
+
+            $select = $connection->select()
+                ->from(
+                    $tmpTable,
+                    array(
+                        'product_id' => '_entity_id',
+                        'website_id' => new Expr($websiteId)
+                    )
+                );
+            $connection->query(
+                $connection->insertFromSelect(
+                    $select, $connection->getTableName('catalog_product_website'), array('product_id', 'website_id'), 1
+                )
+            );
+        }
+    }
+
+    /**
+     * Set categories
+     */
+    public function setCategories()
+    {
+        $connection = $this->_entities->getResource()->getConnection();
+        $tmpTable = $this->_entities->getTableName($this->getCode());
+
+        if ($connection->tableColumnExists($tmpTable, 'categories')) {
+
+            $select = $connection->select()
+                ->from(
+                    array(
+                        'c' => $connection->getTableName('pimgento_entities')
+                    ),
+                    array()
+                )
+                ->joinInner(
+                    array('p' => $tmpTable),
+                    'FIND_IN_SET(`c`.`code`, `p`.`categories`) AND `c`.`import` = "category"',
+                    array(
+                        'category_id' => 'c.entity_id',
+                        'product_id'  => 'p._entity_id',
+                        'position'    => new Expr(1)
+                    )
+                )
+                ->joinInner(
+                    array('e' => $connection->getTableName('catalog_category_entity')),
+                    'c.entity_id = e.entity_id',
+                    array()
+                );
+
+            $connection->query(
+                $connection->insertFromSelect(
+                    $select,
+                    $connection->getTableName('catalog_category_product'),
+                    array('category_id', 'product_id', 'position'),
+                    1
+                )
+            );
+
+        }
+    }
+
+    /**
+     * Init Stock
+     */
+    public function initStock()
+    {
+        $connection = $this->_entities->getResource()->getConnection();
+        $tmpTable = $this->_entities->getTableName($this->getCode());
+
+        $websites = $this->_helperConfig->getStores('website_id');
+
+        foreach ($websites as $websiteId => $affected) {
+            if ($websiteId == 0) {
+                continue;
+            }
+
+            $values = array(
+                'product_id' => '_entity_id',
+                'stock_id' => new Expr(1),
+                'qty' => new Expr(0),
+                'is_in_stock' => new Expr(0),
+                'low_stock_date' => new Expr('NULL'),
+                'stock_status_changed_auto' => new Expr(0),
+                'website_id' => new Expr($websiteId),
+            );
+
+            $select = $connection->select()->from($tmpTable, $values);
+
+            $connection->query(
+                $connection->insertFromSelect(
+                    $select,
+                    $connection->getTableName('cataloginventory_stock_item'),
+                    array_keys($values),
+                    2
+                )
+            );
+
         }
     }
 

@@ -46,6 +46,30 @@ class AddPimgentoImportObserver implements ObserverInterface
                         'method'  => 'updateAttributeSetId',
                     ),
                     array(
+                        'comment' => __('Update column values for options'),
+                        'method'  => 'updateOption',
+                    ),
+                    array(
+                        'comment' => __('Create or update product entities'),
+                        'method'  => 'createEntities',
+                    ),
+                    array(
+                        'comment' => __('Set values to attributes'),
+                        'method'  => 'setValues',
+                    ),
+                    array(
+                        'comment' => __('Set products to websites'),
+                        'method'  => 'setWebsites',
+                    ),
+                    array(
+                        'comment' => __('Set products to categories'),
+                        'method'  => 'setCategories',
+                    ),
+                    array(
+                        'comment' => __('Init stock'),
+                        'method'  => 'initStock',
+                    ),
+                    array(
                         'comment' => __('Drop  temporary table'),
                         'method'  => 'dropTable',
                     ),

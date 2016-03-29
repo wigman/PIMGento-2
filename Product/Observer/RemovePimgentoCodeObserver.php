@@ -32,7 +32,7 @@ class RemovePimgentoCodeObserver implements ObserverInterface
     public function execute(Observer $observer)
     {
         /** @var $product \Magento\Catalog\Model\Product */
-        $product = $observer->getEvent()->getObject();
+        $product = $observer->getEvent()->getProduct();
 
         $this->_entities->setImport('product');
         $this->_entities->setEntityId($product->getId());
