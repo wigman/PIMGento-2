@@ -68,7 +68,7 @@ class Import extends Factory
     {
         $file = $this->getUploadDir() . '/' . $this->getFile();
 
-        $this->_entities->createTmpTableFromFile($file, $this->getCode(), array('type', 'code', 'families'));
+        $this->_entities->createTmpTableFromFile($file, $this->getCode(), 'code', array('type', 'code', 'families'));
     }
 
     /**
@@ -212,7 +212,7 @@ class Import extends Factory
             $connection->insertOnDuplicate('catalog_eav_attribute', $values, array_keys($values));
 
             /* Retrieve default admin label */
-            $stores = $this->_helperConfig->getStores('id');
+            $stores = $this->_helperConfig->getStores('store_id');
 
             $frontendLabel = __('Unknown');
             if (isset($stores[0])) {
@@ -231,53 +231,59 @@ class Import extends Factory
                 $global = 0; // Store View
             }
 
-            // @TODO remove field on update (avoid erase configuration)
-
-            /* Attribute data */
-            $data = Array(
+            $data = array(
                 'entity_type_id' => 4,
                 'attribute_code' => $row['code'],
-                'backend_model' => $row['backend_model'],
-                'backend_type' => $row['backend_type'],
-                'backend_table' => null,
-                'frontend_model' => null,
-                'frontend_input' => $row['frontend_input'],
                 'frontend_label' => $frontendLabel,
-                'frontend_class' => null,
-                'source_model' => $row['source_model'],
-                'is_required' => 0,
-                'is_user_defined' => 1,
-                'default_value' => null,
-                'is_unique' => $row['unique'],
-                'note' => null,
-                'is_global' => $global,
-                'is_visible' => 1,
-                'is_system' => 1,
-                'input_filter' => null,
-                'multiline_count' => 0,
-                'validate_rules' => null,
-                'data_model' => null,
-                'sort_order' => 0,
-                'is_used_in_grid' => 0,
-                'is_visible_in_grid' => 0,
-                'is_filterable_in_grid' => 0,
-                'is_searchable_in_grid' => 0,
-                'frontend_input_renderer' => null,
-                'is_searchable' => 0,
-                'is_filterable' => 0,
-                'is_comparable' => 0,
-                'is_visible_on_front' => 0,
-                'is_wysiwyg_enabled' => 0,
-                'is_html_allowed_on_front' => 0,
-                'is_visible_in_advanced_search' => 0,
-                'is_filterable_in_search' => 0,
-                'used_in_product_listing' => 0,
-                'used_for_sort_by' => 0,
-                'apply_to' => null,
-                'position' => 0,
-                'is_used_for_promo_rules' => 0,
-                'is_configurable' => 1,
+                'is_global'      => $global,
             );
+
+            if ($row['_is_new'] == 1) {
+                $data = array(
+                    'entity_type_id' => 4,
+                    'attribute_code' => $row['code'],
+                    'backend_model' => $row['backend_model'],
+                    'backend_type' => $row['backend_type'],
+                    'backend_table' => null,
+                    'frontend_model' => null,
+                    'frontend_input' => $row['frontend_input'],
+                    'frontend_label' => $frontendLabel,
+                    'frontend_class' => null,
+                    'source_model' => $row['source_model'],
+                    'is_required' => 0,
+                    'is_user_defined' => 1,
+                    'default_value' => null,
+                    'is_unique' => $row['unique'],
+                    'note' => null,
+                    'is_global' => $global,
+                    'is_visible' => 1,
+                    'is_system' => 1,
+                    'input_filter' => null,
+                    'multiline_count' => 0,
+                    'validate_rules' => null,
+                    'data_model' => null,
+                    'sort_order' => 0,
+                    'is_used_in_grid' => 0,
+                    'is_visible_in_grid' => 0,
+                    'is_filterable_in_grid' => 0,
+                    'is_searchable_in_grid' => 0,
+                    'frontend_input_renderer' => null,
+                    'is_searchable' => 0,
+                    'is_filterable' => 0,
+                    'is_comparable' => 0,
+                    'is_visible_on_front' => 0,
+                    'is_wysiwyg_enabled' => 0,
+                    'is_html_allowed_on_front' => 0,
+                    'is_visible_in_advanced_search' => 0,
+                    'is_filterable_in_search' => 0,
+                    'used_in_product_listing' => 0,
+                    'used_for_sort_by' => 0,
+                    'apply_to' => null,
+                    'position' => 0,
+                    'is_used_for_promo_rules' => 0,
+                    'is_configurable' => 1,
+                );
+            }
 
             $this->_eavSetup->updateAttribute(4, $row['_entity_id'], $data, null, 0);
 
