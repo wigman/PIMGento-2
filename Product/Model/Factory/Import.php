@@ -59,7 +59,7 @@ class Import extends Factory
     {
         $file = $this->getUploadDir() . '/' . $this->getFile();
 
-        $this->_entities->createTmpTableFromFile($file, $this->getCode(), 'sku', array('sku'));
+        $this->_entities->createTmpTableFromFile($file, $this->getCode(), array('sku'));
     }
 
     /**
@@ -77,14 +77,6 @@ class Import extends Factory
     }
 
     /**
-     * Match code with entity
-     */
-    public function matchEntity()
-    {
-        $this->_entities->matchEntity($this->getCode(), 'sku', 'catalog_product_entity', 'entity_id');
-    }
-
-    /**
      * Add required data
      */
     public function addRequiredData()
@@ -97,6 +89,7 @@ class Import extends Factory
         $connection->addColumn($tmpTable, '_tax_class_id', 'INT(11) NOT NULL DEFAULT 0'); // None
         $connection->addColumn($tmpTable, '_attribute_set_id', 'INT(11) NOT NULL DEFAULT "4"'); // Default
         $connection->addColumn($tmpTable, '_visibility', 'INT(11) NOT NULL DEFAULT "4"'); // catalog, search
+        $connection->addColumn($tmpTable, '_status', 'INT(11) NOT NULL DEFAULT "2"'); // Disabled
 
         if (!$connection->tableColumnExists($tmpTable, 'url_key')) {
             $connection->addColumn($tmpTable, 'url_key', 'varchar(255) NOT NULL DEFAULT ""');
@@ -104,9 +97,64 @@ class Import extends Factory
         }
 
         if ($connection->tableColumnExists($tmpTable, 'enabled')) {
-            $connection->addColumn($tmpTable, '_status', 'INT(11) NOT NULL DEFAULT "2"');
             $connection->update($tmpTable, array('_status' => new Expr('IF(`enabled` <> 1, 2, 1)')));
         }
+
+        if ($connection->tableColumnExists($tmpTable, 'groups')) {
+            $connection->update($tmpTable, array('_visibility' => new Expr('IF(`groups` <> "", 1, 4)')));
+        }
+    }
+
+    /**
+     * Create Configurable products
+     */
+    public function createConfigurable()
+    {
+        $connection = $this->_entities->getResource()->getConnection();
+        $tmpTable = $this->_entities->getTableName($this->getCode());
+
+        $connection->addColumn($tmpTable, '_children', 'TEXT NULL');
+        $connection->addColumn($tmpTable, '_axis', 'VARCHAR(255) NULL');
+
+        $data = array(
+            'sku'        => 'e.groups',
+            'url_key'    => 'e.groups',
+            '_children'  => new Expr('GROUP_CONCAT(e.sku SEPARATOR ",")'),
+            '_type_id'   => new Expr('"configurable"'),
+            '_options_container' => new Expr('"container1"'),
+            '_status'    => 'e._status',
+            '_axis'      => 'v.axis'
+        );
+
+        if ($connection->tableColumnExists($tmpTable, 'family')) {
+            $data['family'] = 'e.family';
+        }
+
+        if ($connection->tableColumnExists($tmpTable, 'categories')) {
+            $data['categories'] = 'e.categories';
+        }
+
+        $configurable = $connection->select()
+            ->from(array('e' => $tmpTable), $data)
+            ->joinInner(
+                array('v' => $connection->getTableName('pimgento_variant')),
+                'e.groups = v.code',
+                array()
+            )
+            ->where('groups <> ""')
+            ->group('e.groups');
+
+        $connection->query(
+            $connection->insertFromSelect($configurable, $tmpTable, array_keys($data))
+        );
+    }
+
+    /**
+     * Match code with entity
+     */
+    public function matchEntity()
+    {
+        $this->_entities->matchEntity($this->getCode(), 'sku', 'catalog_product_entity', 'entity_id');
     }
 
     /**
@@ -299,6 +347,123 @@ class Import extends Factory
 
         foreach($values as $storeId => $data) {
             $this->_entities->setValues($this->getCode(), 'catalog_product_entity', $data, 4, $storeId, 1);
+        }
+    }
+
+    /**
+     * Link configurable with children
+     */
+    public function linkConfigurable()
+    {
+        $connection = $this->_entities->getResource()->getConnection();
+        $tmpTable = $this->_entities->getTableName($this->getCode());
+
+        $stores = $this->_helperConfig->getStores('store_id');
+
+        $query = $connection->query(
+            $connection->select()
+                ->from(
+                    $tmpTable,
+                    array(
+                        '_entity_id',
+                        '_axis',
+                        '_children'
+                    )
+                )
+                ->where('_type_id = ?', 'configurable')
+                ->where('_axis IS NOT NULL')
+                ->where('_children IS NOT NULL')
+        );
+
+        while (($row = $query->fetch())) {
+            $attributes = explode(',', $row['_axis']);
+
+            $position = 0;
+
+            foreach ($attributes as $id) {
+                if (!is_numeric($id)) {
+                    continue;
+                }
+
+                $hasOptions = $connection->fetchOne(
+                    $connection->select()
+                        ->from($connection->getTableName('eav_attribute_option'), array(new Expr(1)))
+                        ->where('attribute_id = ?', $id)
+                        ->limit(1)
+                );
+
+                if (!$hasOptions) {
+                    continue;
+                }
+
+                /* catalog_product_super_attribute */
+                $values = array(
+                    'product_id'   => $row['_entity_id'],
+                    'attribute_id' => $id,
+                    'position'     => $position++,
+                );
+                $connection->insertOnDuplicate(
+                    $connection->getTableName('catalog_product_super_attribute'), $values, array()
+                );
+
+                /* catalog_product_super_attribute_label */
+                $superAttributeId = $connection->fetchOne(
+                    $connection->select()
+                        ->from($connection->getTableName('catalog_product_super_attribute'))
+                        ->where('attribute_id = ?', $id)
+                        ->where('product_id = ?', $row['_entity_id'])
+                        ->limit(1)
+                );
+
+                foreach ($stores as $storeId => $affected) {
+                    $values = array(
+                        'product_super_attribute_id' => $superAttributeId,
+                        'store_id'                   => $storeId,
+                        'use_default'                => 0,
+                        'value'                      => ''
+                    );
+                    $connection->insertOnDuplicate(
+                        $connection->getTableName('catalog_product_super_attribute_label'), $values, array()
+                    );
+                }
+
+                $children = explode(',', $row['_children']);
+
+                /* catalog_product_relation & catalog_product_super_link */
+                foreach ($children as $child) {
+                    $childId = $connection->fetchOne(
+                        $connection->select()
+                            ->from(
+                                $connection->getTableName('catalog_product_entity'),
+                                array(
+                                    'entity_id'
+                                )
+                            )
+                            ->where('sku = ?', $child)
+                            ->limit(1)
+                    );
+
+                    if ($childId) {
+                        /* catalog_product_relation */
+                        $values = array(
+                            'parent_id' => $row['_entity_id'],
+                            'child_id'  => $childId,
+                        );
+                        $connection->insertOnDuplicate(
+                            $connection->getTableName('catalog_product_relation'), $values, array()
+                        );
+
+                        /* catalog_product_super_link */
+                        $values = array(
+                            'product_id' => $childId,
+                            'parent_id'  => $row['_entity_id'],
+                        );
+                        $connection->insertOnDuplicate(
+                            $connection->getTableName('catalog_product_super_link'), $values, array()
+                        );
+                    }
+                }
+            }
         }
     }
 

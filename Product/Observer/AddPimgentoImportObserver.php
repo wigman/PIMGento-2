@@ -34,12 +34,16 @@ class AddPimgentoImportObserver implements ObserverInterface
                         'method'  => 'insertData',
                     ),
                     array(
-                        'comment' => __('Match code with Magento ID'),
-                        'method'  => 'matchEntity',
-                    ),
-                    array(
                         'comment' => __('Add product required data'),
                         'method'  => 'addRequiredData',
+                    ),
+                    array(
+                        'comment' => __('Create configurable product'),
+                        'method'  => 'createConfigurable',
+                    ),
+                    array(
+                        'comment' => __('Match code with Magento ID'),
+                        'method'  => 'matchEntity',
                     ),
                     array(
                         'comment' => __('Match family code with Magento id'),
@@ -56,6 +60,10 @@ class AddPimgentoImportObserver implements ObserverInterface
                     array(
                         'comment' => __('Set values to attributes'),
                         'method'  => 'setValues',
+                    ),
+                    array(
+                        'comment' => __('Link configurable with children'),
+                        'method'  => 'linkConfigurable',
                     ),
                     array(
                         'comment' => __('Set products to websites'),
