@@ -16,6 +16,7 @@ php bin/magento module:enable Pimgento_Category
 php bin/magento module:enable Pimgento_Family
 php bin/magento module:enable Pimgento_Attribute
 php bin/magento module:enable Pimgento_Option
+php bin/magento module:enable Pimgento_Variant
 php bin/magento module:enable Pimgento_Product
 ```
 
