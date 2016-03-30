@@ -8,6 +8,7 @@ use \Pimgento\Import\Helper\Config as helperConfig;
 use \Magento\Framework\Event\ManagerInterface;
 use \Magento\Framework\App\Cache\TypeListInterface;
 use \Magento\Eav\Model\Entity\Attribute\SetFactory;
+use \Magento\Framework\Module\Manager as moduleManager;
 use \Zend_Db_Expr as Expr;
 use \Exception;
 
@@ -32,6 +33,7 @@ class Import extends Factory
     /**
      * @param \Pimgento\Entities\Model\Entities $entities
      * @param \Pimgento\Import\Helper\Config $helperConfig
+     * @param \Magento\Framework\Module\Manager $moduleManager
      * @param \Magento\Framework\Event\ManagerInterface $eventManager
      * @param \Magento\Eav\Model\Entity\Attribute\SetFactory
      * @param \Magento\Framework\App\Cache\TypeListInterface $cacheTypeList
@@ -40,13 +42,14 @@ class Import extends Factory
     public function __construct(
         Entities $entities,
         helperConfig $helperConfig,
+        moduleManager $moduleManager,
         ManagerInterface $eventManager,
         SetFactory $attributeSetFactory,
         TypeListInterface $cacheTypeList,
         array $data = []
     )
     {
-        parent::__construct($helperConfig, $eventManager, $data);
+        parent::__construct($helperConfig, $eventManager, $moduleManager, $data);
         $this->_entities = $entities;
         $this->_cacheTypeList = $cacheTypeList;
         $this->_attributeSetFactory = $attributeSetFactory;
@@ -110,43 +113,50 @@ class Import extends Factory
      */
     public function createConfigurable()
     {
-        $connection = $this->_entities->getResource()->getConnection();
-        $tmpTable = $this->_entities->getTableName($this->getCode());
+        if (!$this->moduleIsEnabled('Pimgento_Variant')) {
+            $this->setStatus(false);
+            $this->setMessage(
+                __('Module Pimgento_Variant is not enabled')
+            );
+        } else {
+            $connection = $this->_entities->getResource()->getConnection();
+            $tmpTable = $this->_entities->getTableName($this->getCode());
 
-        $connection->addColumn($tmpTable, '_children', 'TEXT NULL');
-        $connection->addColumn($tmpTable, '_axis', 'VARCHAR(255) NULL');
+            $connection->addColumn($tmpTable, '_children', 'TEXT NULL');
+            $connection->addColumn($tmpTable, '_axis', 'VARCHAR(255) NULL');
 
-        $data = array(
-            'sku'        => 'e.groups',
-            'url_key'    => 'e.groups',
-            '_children'  => new Expr('GROUP_CONCAT(e.sku SEPARATOR ",")'),
-            '_type_id'   => new Expr('"configurable"'),
-            '_options_container' => new Expr('"container1"'),
-            '_status'    => 'e._status',
-            '_axis'      => 'v.axis'
-        );
+            $data = array(
+                'sku' => 'e.groups',
+                'url_key' => 'e.groups',
+                '_children' => new Expr('GROUP_CONCAT(e.sku SEPARATOR ",")'),
+                '_type_id' => new Expr('"configurable"'),
+                '_options_container' => new Expr('"container1"'),
+                '_status' => 'e._status',
+                '_axis' => 'v.axis'
+            );
 
-        if ($connection->tableColumnExists($tmpTable, 'family')) {
-            $data['family'] = 'e.family';
+            if ($connection->tableColumnExists($tmpTable, 'family')) {
+                $data['family'] = 'e.family';
+            }
+
+            if ($connection->tableColumnExists($tmpTable, 'categories')) {
+                $data['categories'] = 'e.categories';
+            }
+
+            $configurable = $connection->select()
+                ->from(array('e' => $tmpTable), $data)
+                ->joinInner(
+                    array('v' => $connection->getTableName('pimgento_variant')),
+                    'e.groups = v.code',
+                    array()
+                )
+                ->where('groups <> ""')
+                ->group('e.groups');
+
+            $connection->query(
+                $connection->insertFromSelect($configurable, $tmpTable, array_keys($data))
+            );
         }
-
-        if ($connection->tableColumnExists($tmpTable, 'categories')) {
-            $data['categories'] = 'e.categories';
-        }
-
-        $configurable = $connection->select()
-            ->from(array('e' => $tmpTable), $data)
-            ->joinInner(
-                array('v' => $connection->getTableName('pimgento_variant')),
-                'e.groups = v.code',
-                array()
-            )
-            ->where('groups <> ""')
-            ->group('e.groups');
-
-        $connection->query(
-            $connection->insertFromSelect($configurable, $tmpTable, array_keys($data))
-        );
     }
 
     /**
@@ -355,112 +365,120 @@ class Import extends Factory
      */
     public function linkConfigurable()
     {
-        $connection = $this->_entities->getResource()->getConnection();
-        $tmpTable = $this->_entities->getTableName($this->getCode());
+        if (!$this->moduleIsEnabled('Pimgento_Variant')) {
+            $this->setStatus(false);
+            $this->setMessage(
+                __('Module Pimgento_Variant is not enabled')
+            );
+        } else {
 
-        $stores = $this->_helperConfig->getStores('store_id');
+            $connection = $this->_entities->getResource()->getConnection();
+            $tmpTable = $this->_entities->getTableName($this->getCode());
 
-        $query = $connection->query(
-            $connection->select()
-                ->from(
-                    $tmpTable,
-                    array(
-                        '_entity_id',
-                        '_axis',
-                        '_children'
+            $stores = $this->_helperConfig->getStores('store_id');
+
+            $query = $connection->query(
+                $connection->select()
+                    ->from(
+                        $tmpTable,
+                        array(
+                            '_entity_id',
+                            '_axis',
+                            '_children'
+                        )
                     )
-                )
-                ->where('_type_id = ?', 'configurable')
-                ->where('_axis IS NOT NULL')
-                ->where('_children IS NOT NULL')
-        );
+                    ->where('_type_id = ?', 'configurable')
+                    ->where('_axis IS NOT NULL')
+                    ->where('_children IS NOT NULL')
+            );
 
-        while (($row = $query->fetch())) {
-            $attributes = explode(',', $row['_axis']);
+            while (($row = $query->fetch())) {
+                $attributes = explode(',', $row['_axis']);
 
-            $position = 0;
+                $position = 0;
 
-            foreach ($attributes as $id) {
-                if (!is_numeric($id)) {
-                    continue;
-                }
+                foreach ($attributes as $id) {
+                    if (!is_numeric($id)) {
+                        continue;
+                    }
 
-                $hasOptions = $connection->fetchOne(
-                    $connection->select()
-                        ->from($connection->getTableName('eav_attribute_option'), array(new Expr(1)))
-                        ->where('attribute_id = ?', $id)
-                        ->limit(1)
-                );
-
-                if (!$hasOptions) {
-                    continue;
-                }
-
-                /* catalog_product_super_attribute */
-                $values = array(
-                    'product_id'   => $row['_entity_id'],
-                    'attribute_id' => $id,
-                    'position'     => $position++,
-                );
-                $connection->insertOnDuplicate(
-                    $connection->getTableName('catalog_product_super_attribute'), $values, array()
-                );
-
-                /* catalog_product_super_attribute_label */
-                $superAttributeId = $connection->fetchOne(
-                    $connection->select()
-                        ->from($connection->getTableName('catalog_product_super_attribute'))
-                        ->where('attribute_id = ?', $id)
-                        ->where('product_id = ?', $row['_entity_id'])
-                        ->limit(1)
-                );
-
-                foreach ($stores as $storeId => $affected) {
-                    $values = array(
-                        'product_super_attribute_id' => $superAttributeId,
-                        'store_id'                   => $storeId,
-                        'use_default'                => 0,
-                        'value'                      => ''
-                    );
-                    $connection->insertOnDuplicate(
-                        $connection->getTableName('catalog_product_super_attribute_label'), $values, array()
-                    );
-                }
-
-                $children = explode(',', $row['_children']);
-
-                /* catalog_product_relation & catalog_product_super_link */
-                foreach ($children as $child) {
-                    $childId = $connection->fetchOne(
+                    $hasOptions = $connection->fetchOne(
                         $connection->select()
-                            ->from(
-                                $connection->getTableName('catalog_product_entity'),
-                                array(
-                                    'entity_id'
-                                )
-                            )
-                            ->where('sku = ?', $child)
+                            ->from($connection->getTableName('eav_attribute_option'), array(new Expr(1)))
+                            ->where('attribute_id = ?', $id)
                             ->limit(1)
                     );
 
-                    if ($childId) {
-                        /* catalog_product_relation */
+                    if (!$hasOptions) {
+                        continue;
+                    }
+
+                    /* catalog_product_super_attribute */
+                    $values = array(
+                        'product_id' => $row['_entity_id'],
+                        'attribute_id' => $id,
+                        'position' => $position++,
+                    );
+                    $connection->insertOnDuplicate(
+                        $connection->getTableName('catalog_product_super_attribute'), $values, array()
+                    );
+
+                    /* catalog_product_super_attribute_label */
+                    $superAttributeId = $connection->fetchOne(
+                        $connection->select()
+                            ->from($connection->getTableName('catalog_product_super_attribute'))
+                            ->where('attribute_id = ?', $id)
+                            ->where('product_id = ?', $row['_entity_id'])
+                            ->limit(1)
+                    );
+
+                    foreach ($stores as $storeId => $affected) {
                         $values = array(
-                            'parent_id' => $row['_entity_id'],
-                            'child_id'  => $childId,
+                            'product_super_attribute_id' => $superAttributeId,
+                            'store_id' => $storeId,
+                            'use_default' => 0,
+                            'value' => ''
                         );
                         $connection->insertOnDuplicate(
-                            $connection->getTableName('catalog_product_relation'), $values, array()
+                            $connection->getTableName('catalog_product_super_attribute_label'), $values, array()
+                        );
+                    }
+
+                    $children = explode(',', $row['_children']);
+
+                    /* catalog_product_relation & catalog_product_super_link */
+                    foreach ($children as $child) {
+                        $childId = $connection->fetchOne(
+                            $connection->select()
+                                ->from(
+                                    $connection->getTableName('catalog_product_entity'),
+                                    array(
+                                        'entity_id'
+                                    )
+                                )
+                                ->where('sku = ?', $child)
+                                ->limit(1)
                         );
 
-                        /* catalog_product_super_link */
-                        $values = array(
-                            'product_id' => $childId,
-                            'parent_id'  => $row['_entity_id'],
-                        );
-                        $connection->insertOnDuplicate(
-                            $connection->getTableName('catalog_product_super_link'), $values, array()
-                        );
+                        if ($childId) {
+                            /* catalog_product_relation */
+                            $values = array(
+                                'parent_id' => $row['_entity_id'],
+                                'child_id' => $childId,
+                            );
+                            $connection->insertOnDuplicate(
+                                $connection->getTableName('catalog_product_relation'), $values, array()
+                            );
+
+                            /* catalog_product_super_link */
+                            $values = array(
+                                'product_id' => $childId,
+                                'parent_id' => $row['_entity_id'],
+                            );
+                            $connection->insertOnDuplicate(
+                                $connection->getTableName('catalog_product_super_link'), $values, array()
+                            );
+                        }
                     }
                 }
             }

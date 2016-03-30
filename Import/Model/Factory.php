@@ -6,6 +6,7 @@ use \Magento\Framework\DataObject;
 use \Pimgento\Import\Api\Data\FactoryInterface;
 use \Pimgento\Import\Helper\Config as helperConfig;
 use \Magento\Framework\Event\ManagerInterface;
+use \Magento\Framework\Module\Manager as moduleManager;
 use \Exception;
 
 class Factory extends DataObject implements FactoryInterface
@@ -27,15 +28,27 @@ class Factory extends DataObject implements FactoryInterface
     protected $_helperConfig;
 
     /**
+     * @var \Magento\Framework\Module\Manager
+     */
+    protected $_moduleManager;
+
+    /**
      * @param \Pimgento\Import\Helper\Config $helperConfig
      * @param \Magento\Framework\Event\ManagerInterface $eventManager
+     * @param \Magento\Framework\Module\Manager
      * @param array $data
      */
-    public function __construct(helperConfig $helperConfig, ManagerInterface $eventManager, array $data = [])
+    public function __construct(
+        helperConfig $helperConfig,
+        ManagerInterface $eventManager,
+        moduleManager $moduleManager,
+        array $data = []
+    )
     {
         parent::__construct($data);
         $this->_eventManager = $eventManager;
         $this->_helperConfig = $helperConfig;
+        $this->_moduleManager = $moduleManager;
     }
 
     /**
@@ -467,6 +480,17 @@ class Factory extends DataObject implements FactoryInterface
         $this->setMessage(null);
 
         return $this;
+    }
+
+    /**
+     * Check if module is enabled
+     *
+     * @param string $module
+     * @return bool
+     */
+    protected function moduleIsEnabled($module)
+    {
+        return $this->_moduleManager->isEnabled($module);
     }
 
 }
