@@ -50,12 +50,11 @@ class Entities extends AbstractModel implements EntitiesInterface, IdentityInter
      *
      * @param array $columns
      * @param string $tableSuffix
-     * @param string $primary
      * @return $this
      */
-    public function createTmpTable($columns, $tableSuffix, $primary = 'code')
+    public function createTmpTable($columns, $tableSuffix)
     {
-        $this->_getResource()->createTable($columns, $this->getTableName($tableSuffix), $primary);
+        $this->_getResource()->createTable($columns, $this->getTableName($tableSuffix));
 
         return $this;
     }
@@ -65,12 +64,11 @@ class Entities extends AbstractModel implements EntitiesInterface, IdentityInter
      *
      * @param string $file
      * @param string $tableSuffix
-     * @param string $primary
      * @param array $required
      * @return $this
      * @throws Exception
      */
-    public function createTmpTableFromFile($file, $tableSuffix, $primary = 'code', $required = array())
+    public function createTmpTableFromFile($file, $tableSuffix, $required = array())
     {
         $columns = $this->getFileColumns($file);
 
@@ -80,7 +78,7 @@ class Entities extends AbstractModel implements EntitiesInterface, IdentityInter
             }
         }
 
-        $this->createTmpTable($columns, $tableSuffix, $primary);
+        $this->createTmpTable($columns, $tableSuffix);
 
         return $this;
     }

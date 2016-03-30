@@ -68,7 +68,7 @@ class Import extends Factory
     {
         $file = $this->getUploadDir() . '/' . $this->getFile();
 
-        $this->_entities->createTmpTableFromFile($file, $this->getCode(), 'code', array('type', 'code', 'families'));
+        $this->_entities->createTmpTableFromFile($file, $this->getCode(), array('type', 'code', 'families'));
     }
 
     /**

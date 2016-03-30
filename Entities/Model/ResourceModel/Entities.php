@@ -103,10 +103,9 @@ class Entities extends AbstractDb
      *
      * @param array $fields
      * @param string $tableName
-     * @param string $primary
      * @return $this
      */
-    public function createTable($fields, $tableName, $primary = 'code')
+    public function createTable($fields, $tableName)
     {
         $connection = $this->getConnection();
 
@@ -119,28 +118,13 @@ class Entities extends AbstractDb
         foreach ($fields as $field) {
             if ($field) {
                 $column = $this->formatColumn($field);
-                if ($field == $primary) {
-                    $table->addColumn(
-                        $column,
-                        \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                        255,
-                        [],
-                        $column
-                    );
-                    $table->addIndex(
-                        'UNIQUE_' . strtoupper($primary),
-                        $primary,
-                        ['type' => \Magento\Framework\DB\Adapter\AdapterInterface::INDEX_TYPE_UNIQUE]
-                    );
-                } else {
-                    $table->addColumn(
-                        $column,
-                        \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                        null,
-                        [],
-                        $column
-                    );
-                }
+                $table->addColumn(
+                    $column,
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    null,
+                    [],
+                    $column
+                );
             }
         }
 
@@ -150,6 +134,12 @@ class Entities extends AbstractDb
             11,
             [],
             'Entity Id'
+        );
+
+        $table->addIndex(
+            'UNIQUE_ENTITY_ID',
+            '_entity_id',
+            ['type' => \Magento\Framework\DB\Adapter\AdapterInterface::INDEX_TYPE_UNIQUE]
         );
 
         $table->addColumn(
