@@ -233,7 +233,7 @@ class Import extends Factory
                         array(
                             'c' => $connection->getTableName('pimgento_entities')
                         ),
-                        'FIND_IN_SET(REPLACE(`c`.`code`,"' . $columnPrefix . '_",""), `p`.`' . $column . '`)
+                        'FIND_IN_SET(`c`.`code`, CONCAT("' . $columnPrefix . '", "_", `p`.`' . $column . '`))
                         AND `c`.`import` = "option"',
                         array(
                             $column => new Expr('GROUP_CONCAT(`c`.`entity_id` SEPARATOR ",")')
