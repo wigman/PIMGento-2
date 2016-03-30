@@ -173,7 +173,7 @@ class Entities extends AbstractModel implements EntitiesInterface, IdentityInter
             $fragments[] = $tableSuffix;
         }
 
-        return join('_', $fragments);
+        return $this->_getResource()->getConnection()->getTableName(join('_', $fragments));
     }
 
     /**

@@ -106,7 +106,7 @@ class Import extends Factory
 
         $connection->query(
             $connection->insertFromSelect(
-                $families, 'eav_attribute_set', array_keys($values), 1
+                $families, $connection->getTableName('eav_attribute_set'), array_keys($values), 1
             )
         );
     }

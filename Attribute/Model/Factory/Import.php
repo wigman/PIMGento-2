@@ -107,7 +107,9 @@ class Import extends Factory
             ->where('entity_type_id = ?', 4);
 
         $connection->query(
-            $connection->insertFromSelect($select,  'pimgento_entities', array('import', 'code', 'entity_id'), 2)
+            $connection->insertFromSelect(
+                $select,  $connection->getTableName('pimgento_entities'), array('import', 'code', 'entity_id'), 2
+            )
         );
 
         $this->_entities->matchEntity($this->getCode(), 'code', 'eav_attribute', 'attribute_id');
@@ -207,12 +209,16 @@ class Import extends Factory
                 'entity_type_id' => 4,
                 'attribute_code' => $row['code'],
             );
-            $connection->insertOnDuplicate('eav_attribute', $values, array_keys($values));
+            $connection->insertOnDuplicate(
+                $connection->getTableName('eav_attribute'), $values, array_keys($values)
+            );
 
             $values = array(
                 'attribute_id' => $row['_entity_id'],
             );
-            $connection->insertOnDuplicate('catalog_eav_attribute', $values, array_keys($values));
+            $connection->insertOnDuplicate(
+                $connection->getTableName('catalog_eav_attribute'), $values, array_keys($values)
+            );
 
             /* Retrieve default admin label */
             $stores = $this->_helperConfig->getStores('store_id');
@@ -312,7 +318,9 @@ class Import extends Factory
                             'store_id' => $store['store_id'],
                             'value' => $row['label-' . $lang]
                         );
-                        $connection->insertOnDuplicate('eav_attribute_label', $values, array_keys($values));
+                        $connection->insertOnDuplicate(
+                            $connection->getTableName('eav_attribute_label'), $values, array_keys($values)
+                        );
                     }
                 }
             }

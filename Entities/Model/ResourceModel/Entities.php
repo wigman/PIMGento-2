@@ -309,7 +309,7 @@ class Entities extends AbstractDb
 
                     $insert = $connection->insertFromSelect(
                         $select,
-                        $entityTable . '_' . $backendType,
+                        $connection->getTableName($entityTable . '_' . $backendType),
                         array('attribute_id', 'store_id', 'entity_id', 'value'),
                         $mode
                     );
@@ -322,7 +322,9 @@ class Entities extends AbstractDb
                         $where = array(
                             'value = ?' => '0000-00-00 00:00:00'
                         );
-                        $connection->update($entityTable . '_' . $backendType, $values, $where);
+                        $connection->update(
+                            $connection->getTableName($entityTable . '_' . $backendType), $values, $where
+                        );
                     }
                 }
             }

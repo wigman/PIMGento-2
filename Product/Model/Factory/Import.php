@@ -113,15 +113,20 @@ class Import extends Factory
      */
     public function createConfigurable()
     {
+        $connection = $this->_entities->getResource()->getConnection();
+        $tmpTable = $this->_entities->getTableName($this->getCode());
+
         if (!$this->moduleIsEnabled('Pimgento_Variant')) {
             $this->setStatus(false);
             $this->setMessage(
                 __('Module Pimgento_Variant is not enabled')
             );
+        } else if (!$connection->tableColumnExists($tmpTable, 'groups')) {
+            $this->setStatus(false);
+            $this->setMessage(
+                __('Column groups not found')
+            );
         } else {
-            $connection = $this->_entities->getResource()->getConnection();
-            $tmpTable = $this->_entities->getTableName($this->getCode());
-
             $connection->addColumn($tmpTable, '_children', 'TEXT NULL');
             $connection->addColumn($tmpTable, '_axis', 'VARCHAR(255) NULL');
 
@@ -176,6 +181,7 @@ class Import extends Factory
         $tmpTable = $this->_entities->getTableName($this->getCode());
 
         if (!$connection->tableColumnExists($tmpTable, 'family')) {
+            $this->setStatus(false);
             $this->setMessage(
                 __('Column family is missing')
             );
@@ -213,11 +219,14 @@ class Import extends Factory
             '_tax_class_id',
             '_attribute_set_id',
             '_visibility',
+            '_children',
+            '_axis',
             'sku',
             'categories',
             'family',
             'groups',
             'url_key',
+            'enabled',
         );
 
         foreach ($columns as $column) {
@@ -317,10 +326,13 @@ class Import extends Factory
             '_tax_class_id',
             '_attribute_set_id',
             '_visibility',
+            '_children',
+            '_axis',
             'sku',
             'categories',
             'family',
             'groups',
+            'enabled',
         );
 
         $values = array(
@@ -328,9 +340,12 @@ class Import extends Factory
                 'options_container' => '_options_container',
                 'tax_class_id'      => '_tax_class_id',
                 'visibility'        => '_visibility',
-                'status'            => '_status',
             )
         );
+
+        if ($connection->tableColumnExists($tmpTable, 'enabled')) {
+            $values[0]['status'] = '_status';
+        }
 
         foreach ($columns as $column) {
             if (in_array($column, $except)) {
@@ -365,16 +380,20 @@ class Import extends Factory
      */
     public function linkConfigurable()
     {
+        $connection = $this->_entities->getResource()->getConnection();
+        $tmpTable = $this->_entities->getTableName($this->getCode());
+
         if (!$this->moduleIsEnabled('Pimgento_Variant')) {
             $this->setStatus(false);
             $this->setMessage(
                 __('Module Pimgento_Variant is not enabled')
             );
+        } else if (!$connection->tableColumnExists($tmpTable, 'groups')) {
+            $this->setStatus(false);
+            $this->setMessage(
+                __('Column groups not found')
+            );
         } else {
-
-            $connection = $this->_entities->getResource()->getConnection();
-            $tmpTable = $this->_entities->getTableName($this->getCode());
-
             $stores = $this->_helperConfig->getStores('store_id');
 
             $query = $connection->query(
@@ -524,7 +543,12 @@ class Import extends Factory
         $connection = $this->_entities->getResource()->getConnection();
         $tmpTable = $this->_entities->getTableName($this->getCode());
 
-        if ($connection->tableColumnExists($tmpTable, 'categories')) {
+        if (!$connection->tableColumnExists($tmpTable, 'categories')) {
+            $this->setStatus(false);
+            $this->setMessage(
+                __('Column categories not found')
+            );
+        } else {
 
             $select = $connection->select()
                 ->from(
@@ -585,7 +609,7 @@ class Import extends Factory
                 'website_id' => new Expr($websiteId),
             );
 
-            $select = $connection->select()->from($tmpTable, $values);
+            $select = $connection->select()->from($tmpTable, $values)->where('_type_id = ?', 'simple');
 
             $connection->query(
                 $connection->insertFromSelect(

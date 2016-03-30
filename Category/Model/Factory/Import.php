@@ -223,13 +223,15 @@ class Import extends Factory
         );
         $parents = $connection->select()->from($tmpTable, $values);
         $connection->query(
-            $connection->insertFromSelect($parents, 'catalog_category_entity', array_keys($values), 1)
+            $connection->insertFromSelect(
+                $parents, $connection->getTableName('catalog_category_entity'), array_keys($values), 1
+            )
         );
 
         $values = array(
             'created_at' => new Expr('now()')
         );
-        $connection->update('catalog_category_entity', $values, 'created_at IS NULL');
+        $connection->update($connection->getTableName('catalog_category_entity'), $values, 'created_at IS NULL');
     }
 
     /**
@@ -247,7 +249,9 @@ class Import extends Factory
             'display_mode'    => new Expr('"PRODUCTS"'),
         );
 
-        $this->_entities->setValues($this->getCode(), 'catalog_category_entity', $values, 3, 0, 2);
+        $this->_entities->setValues(
+            $this->getCode(), $connection->getTableName('catalog_category_entity'), $values, 3, 0, 2
+        );
 
         $stores = $this->_helperConfig->getStores('lang');
 
@@ -259,7 +263,11 @@ class Import extends Factory
                         'url_key' => 'url_key-' . $local,
                     );
                     $this->_entities->setValues(
-                        $this->getCode(), 'catalog_category_entity', $values, 3, $store['store_id']
+                        $this->getCode(),
+                        $connection->getTableName('catalog_category_entity'),
+                        $values,
+                        3,
+                        $store['store_id']
                     );
                 }
             }
@@ -318,7 +326,9 @@ class Import extends Factory
                         ->where('`_url_rewrite-' . $local . '` <> ""');
 
                     $connection->query(
-                        $connection->insertFromSelect($rewrite, 'url_rewrite', array_keys($values), 2)
+                        $connection->insertFromSelect(
+                            $rewrite, $connection->getTableName('url_rewrite'), array_keys($values), 2
+                        )
                     );
                 }
             }
