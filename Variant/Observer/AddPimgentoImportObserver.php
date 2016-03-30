@@ -23,7 +23,7 @@ class AddPimgentoImportObserver implements ObserverInterface
                 'code'       => 'variant',
                 'name'       => __('Variant'),
                 'class'      => '\Pimgento\Variant\Model\Factory\Import',
-                'sort_order' => 20,
+                'sort_order' => 50,
                 'steps' => array(
                     array(
                         'comment' => __('Create temporary table'),
@@ -32,6 +32,10 @@ class AddPimgentoImportObserver implements ObserverInterface
                     array(
                         'comment' => __('Fill temporary table'),
                         'method'  => 'insertData',
+                    ),
+                    array(
+                        'comment' => __('Update variant table'),
+                        'method'  => 'updateVariant',
                     ),
                     array(
                         'comment' => __('Drop  temporary table'),

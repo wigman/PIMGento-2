@@ -281,7 +281,6 @@ class Import extends Factory
                     'apply_to' => null,
                     'position' => 0,
                     'is_used_for_promo_rules' => 0,
-                    'is_configurable' => 1,
                 );
             }
 
