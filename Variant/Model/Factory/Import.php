@@ -72,12 +72,59 @@ class Import extends Factory
     }
 
     /**
-     * Add or update data in variant table
+     * Remove columns from variant table
      */
-    public function updateVariant()
+    public function removeColumns()
+    {
+        $connection = $this->_entities->getResource()->getConnection();
+
+        $except = array('code', 'axis');
+
+        $variantTable = $connection->getTableName('pimgento_variant');
+
+        $columns = array_keys($connection->describeTable($variantTable));
+
+        foreach ($columns as $column) {
+            if (in_array($column, $except)) {
+                continue;
+            }
+
+            $connection->dropColumn($variantTable, $column);
+        }
+    }
+
+    /**
+     * Add columns to variant table
+     */
+    public function addColumns()
     {
         $connection = $this->_entities->getResource()->getConnection();
         $tmpTable = $this->_entities->getTableName($this->getCode());
+
+        $except = array('code', 'axis', 'type', '_entity_id', '_is_new');
+
+        $variantTable = $connection->getTableName('pimgento_variant');
+
+        $columns = array_keys($connection->describeTable($tmpTable));
+
+        foreach ($columns as $column) {
+            if (in_array($column, $except)) {
+                continue;
+            }
+
+            $connection->addColumn($variantTable, $this->_columnName($column), 'TEXT');
+        }
+    }
+
+    /**
+     * Add or update data in variant table
+     */
+    public function updateData()
+    {
+        $connection = $this->_entities->getResource()->getConnection();
+        $tmpTable = $this->_entities->getTableName($this->getCode());
+
+        $variantTable = $connection->getTableName('pimgento_variant');
 
         $variant = $connection->query(
             $connection->select()->from($tmpTable)
@@ -90,38 +137,38 @@ class Import extends Factory
             ->where('entity_type_id = ?', 4)
         );
 
-        $stores = $this->_helperConfig->getStores('lang');
+        $columns = array_keys($connection->describeTable($tmpTable));
 
         while (($row = $variant->fetch())) {
 
-            $translate = array('name' => array());
+            $values = array();
 
-            foreach ($stores as $lang => $affected) {
-                if (isset($row['label-' . $lang])) {
-                    foreach ($affected as $store) {
-                        $translate['name'][$store['store_id']] = $row['label-' . $lang];
+            foreach ($columns as $column) {
+
+                if ($connection->tableColumnExists($variantTable, $this->_columnName($column))) {
+
+                    $values[$this->_columnName($column)] = $row[$column];
+
+                    if ($column == 'axis') {
+                        $axisAttributes = explode(',', $row['axis']);
+
+                        $axis = array();
+
+                        foreach ($axisAttributes as $code) {
+                            if (isset($attributes[$code])) {
+                                $axis[] = $attributes[$code];
+                            }
+                        }
+
+                        $values[$column] = join(',', $axis);
                     }
+
                 }
+
             }
-
-            $axisAttributes = explode(',', $row['axis']);
-
-            $axis = array();
-
-            foreach ($axisAttributes as $code) {
-                if (isset($attributes[$code])) {
-                    $axis[] = $attributes[$code];
-                }
-            }
-
-            $values = array(
-                'code' => $row['code'],
-                'axis' => join(',', $axis),
-                'translate' => serialize($translate),
-            );
 
             $connection->insertOnDuplicate(
-                $connection->getTableName('pimgento_variant'), $values, array_keys($values)
+                $variantTable, $values, array_keys($values)
             );
         }
     }
@@ -151,6 +198,27 @@ class Import extends Factory
         $this->setMessage(
             __('Cache cleaned for: %1', join(', ', $types))
         );
+    }
+
+    /**
+     * Replace column name
+     *
+     * @param string $column
+     * @return string
+     */
+    protected function _columnName($column)
+    {
+        $matches = array(
+            'label' => 'name',
+        );
+
+        foreach ($matches as $name => $replace) {
+            if (preg_match('/^'. $name . '/', $column)) {
+                $column = preg_replace('/^'. $name . '/', $replace, $column);
+            }
+        }
+
+        return $column;
     }
 
 }

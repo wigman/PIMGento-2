@@ -34,8 +34,16 @@ class AddPimgentoImportObserver implements ObserverInterface
                         'method'  => 'insertData',
                     ),
                     array(
-                        'comment' => __('Update variant table'),
-                        'method'  => 'updateVariant',
+                        'comment' => __('Clean up variant'),
+                        'method'  => 'removeColumns',
+                    ),
+                    array(
+                        'comment' => __('Variant data enrichment'),
+                        'method'  => 'addColumns',
+                    ),
+                    array(
+                        'comment' => __('Fill variant data'),
+                        'method'  => 'updateData',
                     ),
                     array(
                         'comment' => __('Drop  temporary table'),

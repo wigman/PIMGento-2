@@ -42,20 +42,6 @@ class InstallSchema implements InstallSchemaInterface
                 ['nullable' => false],
                 'Product axis'
             )
-            ->addColumn(
-                'translate',
-                Table::TYPE_TEXT,
-                null,
-                ['64k'],
-                'Attribute translation'
-            )
-            ->addColumn(
-                'created_at',
-                Table::TYPE_TIMESTAMP,
-                null,
-                ['nullable' => false, 'default' => Table::TIMESTAMP_INIT],
-                'Creation Time'
-            )
             ->setComment('Pimgento Variant');
 
         $installer->getConnection()->createTable($table);
