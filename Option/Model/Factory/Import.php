@@ -8,6 +8,7 @@ use \Pimgento\Import\Helper\Config as helperConfig;
 use \Magento\Framework\Event\ManagerInterface;
 use \Magento\Framework\App\Cache\TypeListInterface;
 use \Magento\Framework\Module\Manager as moduleManager;
+use \Magento\Framework\App\Config\ScopeConfigInterface as scopeConfig;
 use \Zend_Db_Expr as Expr;
 use \Exception;
 
@@ -28,6 +29,7 @@ class Import extends Factory
      * @param \Pimgento\Entities\Model\Entities $entities
      * @param \Pimgento\Import\Helper\Config $helperConfig
      * @param \Magento\Framework\Module\Manager $moduleManager
+     * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
      * @param \Magento\Framework\Event\ManagerInterface $eventManager
      * @param \Magento\Framework\App\Cache\TypeListInterface $cacheTypeList
      * @param array $data
@@ -36,12 +38,13 @@ class Import extends Factory
         Entities $entities,
         helperConfig $helperConfig,
         moduleManager $moduleManager,
+        scopeConfig $scopeConfig,
         ManagerInterface $eventManager,
         TypeListInterface $cacheTypeList,
         array $data = []
     )
     {
-        parent::__construct($helperConfig, $eventManager, $moduleManager, $data);
+        parent::__construct($helperConfig, $eventManager, $moduleManager, $scopeConfig, $data);
         $this->_entities = $entities;
         $this->_cacheTypeList = $cacheTypeList;
     }

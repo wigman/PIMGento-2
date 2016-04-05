@@ -7,6 +7,7 @@ use \Pimgento\Import\Api\Data\FactoryInterface;
 use \Pimgento\Import\Helper\Config as helperConfig;
 use \Magento\Framework\Event\ManagerInterface;
 use \Magento\Framework\Module\Manager as moduleManager;
+use \Magento\Framework\App\Config\ScopeConfigInterface as scopeConfig;
 use \Exception;
 
 class Factory extends DataObject implements FactoryInterface
@@ -33,15 +34,22 @@ class Factory extends DataObject implements FactoryInterface
     protected $_moduleManager;
 
     /**
+     * @var \Magento\Framework\App\Config\ScopeConfigInterface
+     */
+    protected $_scopeConfig;
+
+    /**
      * @param \Pimgento\Import\Helper\Config $helperConfig
      * @param \Magento\Framework\Event\ManagerInterface $eventManager
      * @param \Magento\Framework\Module\Manager
+     * @param \Magento\Framework\App\Config\ScopeConfigInterface
      * @param array $data
      */
     public function __construct(
         helperConfig $helperConfig,
         ManagerInterface $eventManager,
         moduleManager $moduleManager,
+        scopeConfig $scopeConfig,
         array $data = []
     )
     {
@@ -49,6 +57,7 @@ class Factory extends DataObject implements FactoryInterface
         $this->_eventManager = $eventManager;
         $this->_helperConfig = $helperConfig;
         $this->_moduleManager = $moduleManager;
+        $this->_scopeConfig = $scopeConfig;
     }
 
     /**
