@@ -67,9 +67,26 @@ class Config extends AbstractHelper
             $arrayKey = array($arrayKey);
         }
 
+        $channels = $this->scopeConfig->getValue('pimgento/general/website_mapping');
+
+        if ($channels) {
+            $channels = unserialize($channels);
+            if (!is_array($channels)) {
+                $channels = array();
+            }
+        }
+
         foreach ($stores as $store) {
 
             $website = $this->_storeManager->getWebsite($store->getWebsiteId());
+
+            $channel = $website->getCode();
+
+            foreach ($channels as $match) {
+                if ($match['website'] == $website->getCode()) {
+                    $channel = $match['channel'];
+                }
+            }
 
             $combine = array();
 
@@ -86,6 +103,9 @@ class Config extends AbstractHelper
                         break;
                     case 'website_code':
                         $combine[] = $website->getCode();
+                        break;
+                    case 'channel_code':
+                        $combine[] = $channel;
                         break;
                     case 'lang':
                         $combine[] = $this->scopeConfig->getValue(
@@ -115,6 +135,7 @@ class Config extends AbstractHelper
                 'store_code'   => $store->getCode(),
                 'website_id'   => $website->getId(),
                 'website_code' => $website->getCode(),
+                'channel_code' => $channel,
                 'lang'         => $this->scopeConfig->getValue(
                     'general/locale/code', ScopeInterface::SCOPE_STORE, $store->getId()
                 ),

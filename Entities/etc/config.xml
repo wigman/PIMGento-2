@@ -2,11 +2,11 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
     <default>
         <pimgento>
-            <entities>
+            <general>
                 <lines_terminated>\n</lines_terminated>
                 <fields_terminated>;</fields_terminated>
                 <fields_enclosure>"</fields_enclosure>
-            </entities>
+            </general>
         </pimgento>
     </default>
 </config>

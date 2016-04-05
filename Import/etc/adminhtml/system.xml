@@ -5,6 +5,14 @@
             <label>Pimgento</label>
             <tab>catalog</tab>
             <resource>Pimgento_Import::config_pimgento</resource>
+            <group id="general" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>General</label>
+                <field id="website_mapping" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Website Mapping</label>
+                    <frontend_model>Pimgento\Import\Block\Adminhtml\System\Config\Form\Field\Website</frontend_model>
+                    <backend_model>Magento\Config\Model\Config\Backend\Serialized\ArraySerialized</backend_model>
+                </field>
+            </group>
         </section>
     </system>
 </config>

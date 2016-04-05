@@ -14,9 +14,9 @@ class Config extends AbstractHelper
     public function getCsvConfig()
     {
         return array(
-            'lines_terminated'  => $this->scopeConfig->getValue('pimgento/entities/lines_terminated'),
-            'fields_terminated' => $this->scopeConfig->getValue('pimgento/entities/fields_terminated'),
-            'fields_enclosure'  => $this->scopeConfig->getValue('pimgento/entities/fields_enclosure'),
+            'lines_terminated'  => $this->scopeConfig->getValue('pimgento/general/lines_terminated'),
+            'fields_terminated' => $this->scopeConfig->getValue('pimgento/general/fields_terminated'),
+            'fields_enclosure'  => $this->scopeConfig->getValue('pimgento/general/fields_enclosure'),
         );
     }
 
