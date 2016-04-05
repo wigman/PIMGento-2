@@ -11,6 +11,7 @@
                     <label>Website Mapping</label>
                     <frontend_model>Pimgento\Import\Block\Adminhtml\System\Config\Form\Field\Website</frontend_model>
                     <backend_model>Magento\Config\Model\Config\Backend\Serialized\ArraySerialized</backend_model>
+                    <comment>Match Magento website with Pim channel</comment>
                 </field>
             </group>
         </section>

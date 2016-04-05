@@ -3,6 +3,16 @@
         <section id="pimgento">
             <group id="product" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="0">
                 <label>Products</label>
+                <field id="attribute_mapping" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Attribute Mapping</label>
+                    <frontend_model>Pimgento\Product\Block\Adminhtml\System\Config\Form\Field\Attribute</frontend_model>
+                    <backend_model>Magento\Config\Model\Config\Backend\Serialized\ArraySerialized</backend_model>
+                    <comment>Fill additional Magento attributes from Pim attributes</comment>
+                </field>
+                <field id="configurable_attributes" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Configurable</label>
+                    <comment>Fill configurable with Pim attributes above, comma separated</comment>
+                </field>
             </group>
         </section>
     </system>

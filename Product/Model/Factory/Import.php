@@ -109,6 +109,30 @@ class Import extends Factory
         if ($connection->tableColumnExists($tmpTable, 'groups')) {
             $connection->update($tmpTable, array('_visibility' => new Expr('IF(`groups` <> "", 1, 4)')));
         }
+
+        $matches = $this->_scopeConfig->getValue('pimgento/product/attribute_mapping');
+
+        $stores = $this->_helperConfig->getStores('lang');
+
+        if ($matches) {
+            $matches = unserialize($matches);
+            if (is_array($matches)) {
+                $add = array();
+                foreach ($matches as $match) {
+                    $add[$match['akeneo_attribute']] = $match['magento_attribute'];
+                    foreach ($stores as $local => $affected) {
+                        $add[$match['akeneo_attribute'] . '-' . $local] = $match['magento_attribute'] . '-' . $local;
+                    }
+                }
+
+                foreach ($add as $akeneo => $magento) {
+                    if ($connection->tableColumnExists($tmpTable, $akeneo)) {
+                        $connection->addColumn($tmpTable, $magento, 'TEXT');
+                        $connection->update($tmpTable, array($magento => new Expr('`' . $akeneo . '`')));
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -161,7 +185,7 @@ class Import extends Factory
 
                 foreach ($attributes as $attribute) {
                     foreach ($stores as $local => $affected) {
-                        $attributes[] = $attribute . '-' . $local;
+                        $attributes[] = trim($attribute) . '-' . $local;
                     }
                 }
 
