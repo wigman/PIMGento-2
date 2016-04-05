@@ -78,6 +78,10 @@ class AddPimgentoImportObserver implements ObserverInterface
                         'method'  => 'initStock',
                     ),
                     array(
+                        'comment' => __('Set Url Rewrite'),
+                        'method'  => 'setUrlRewrite',
+                    ),
+                    array(
                         'comment' => __('Drop  temporary table'),
                         'method'  => 'dropTable',
                     ),

@@ -325,7 +325,6 @@ class Import extends Factory
 
                     $rewrite = $connection->select()
                         ->from($tmpTable, $values)
-                        ->where('`_is_new` = ?', 1)
                         ->where('`_url_rewrite-' . $local . '` <> ""');
 
                     $connection->query(
