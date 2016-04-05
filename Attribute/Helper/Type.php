@@ -30,7 +30,32 @@ class Type extends AbstractHelper
             'pim_catalog_tax'          => 'tax',
         );
 
+        $types = array_merge($types, $this->getAdditionalTypes());
+
         return isset($types[$pimType]) ? $this->getConfiguration($types[$pimType]) : $this->getConfiguration();
+    }
+
+    /**
+     * Retrieve additional types
+     *
+     * @return array
+     */
+    public function getAdditionalTypes()
+    {
+        $types = $this->scopeConfig->getValue('pimgento/attribute/types');
+
+        $additional = array();
+
+        if ($types) {
+            $types = unserialize($types);
+            if (is_array($types)) {
+                foreach ($types as $type) {
+                    $additional[$type['akeneo_type']] = $type['magento_type'];
+                }
+            }
+        }
+
+        return $additional;
     }
 
     /**
@@ -99,6 +124,23 @@ class Type extends AbstractHelper
         );
 
         return isset($types[$inputType]) ? $types[$inputType] : $types['default'];
+    }
+
+    /**
+     * Retrieve available Magento types
+     */
+    public function getAvailableTypes()
+    {
+        return array(
+            'text'        => 'text',
+            'textarea'    => 'textarea',
+            'date'        => 'date',
+            'boolean'     => 'boolean',
+            'multiselect' => 'multiselect',
+            'select'      => 'select',
+            'price'       => 'price',
+            'tax'         => 'tax',
+        );
     }
 
 }

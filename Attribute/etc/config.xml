@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <pimgento>
+            <attribute>
+                <types>a:1:{s:18:"_1459864522222_222";a:2:{s:11:"akeneo_type";s:19:"pim_catalog_example";s:12:"magento_type";s:6:"select";}}</types>
+            </attribute>
+        </pimgento>
+    </default>
+</config>
