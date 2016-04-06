@@ -74,6 +74,8 @@ class Config extends AbstractHelper
             if (!is_array($channels)) {
                 $channels = array();
             }
+        } else {
+            $channels = array();
         }
 
         foreach ($stores as $store) {
