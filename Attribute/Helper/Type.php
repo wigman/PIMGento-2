@@ -50,7 +50,7 @@ class Type extends AbstractHelper
             $types = unserialize($types);
             if (is_array($types)) {
                 foreach ($types as $type) {
-                    $additional[$type['akeneo_type']] = $type['magento_type'];
+                    $additional[$type['pim_type']] = $type['magento_type'];
                 }
             }
         }

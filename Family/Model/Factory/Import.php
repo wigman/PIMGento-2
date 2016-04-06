@@ -101,7 +101,7 @@ class Import extends Factory
         $values = array(
             'attribute_set_id'   => '_entity_id',
             'entity_type_id'     => new Expr(4),
-            'attribute_set_name' => new Expr('CONCAT("Akeneo", " ", `label`)'),
+            'attribute_set_name' => new Expr('CONCAT("Pim", " ", `label`)'),
             'sort_order'         => new Expr(1),
         );
 

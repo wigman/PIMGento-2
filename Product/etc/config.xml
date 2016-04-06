@@ -3,6 +3,7 @@
     <default>
         <pimgento>
             <product>
+                <attribute_mapping>a:1:{s:18:"_1459928423869_869";a:2:{s:13:"pim_attribute";s:11:"description";s:17:"magento_attribute";s:17:"short_description";}}</attribute_mapping>
                 <configurable_attributes>name,description</configurable_attributes>
             </product>
         </pimgento>

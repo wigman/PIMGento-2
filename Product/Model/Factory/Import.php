@@ -119,16 +119,16 @@ class Import extends Factory
             if (is_array($matches)) {
                 $add = array();
                 foreach ($matches as $match) {
-                    $add[$match['akeneo_attribute']] = $match['magento_attribute'];
+                    $add[$match['pim_attribute']] = $match['magento_attribute'];
                     foreach ($stores as $local => $affected) {
-                        $add[$match['akeneo_attribute'] . '-' . $local] = $match['magento_attribute'] . '-' . $local;
+                        $add[$match['pim_attribute'] . '-' . $local] = $match['magento_attribute'] . '-' . $local;
                     }
                 }
 
-                foreach ($add as $akeneo => $magento) {
-                    if ($connection->tableColumnExists($tmpTable, $akeneo)) {
+                foreach ($add as $pim => $magento) {
+                    if ($connection->tableColumnExists($tmpTable, $pim)) {
                         $connection->addColumn($tmpTable, $magento, 'TEXT');
-                        $connection->update($tmpTable, array($magento => new Expr('`' . $akeneo . '`')));
+                        $connection->update($tmpTable, array($magento => new Expr('`' . $pim . '`')));
                     }
                 }
             }

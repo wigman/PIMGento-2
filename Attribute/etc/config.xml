@@ -3,7 +3,7 @@
     <default>
         <pimgento>
             <attribute>
-                <types>a:1:{s:18:"_1459864522222_222";a:2:{s:11:"akeneo_type";s:19:"pim_catalog_example";s:12:"magento_type";s:6:"select";}}</types>
+                <types>a:1:{s:18:"_1459928390511_511";a:2:{s:8:"pim_type";s:19:"pim_catalog_example";s:12:"magento_type";s:6:"select";}}</types>
             </attribute>
         </pimgento>
     </default>

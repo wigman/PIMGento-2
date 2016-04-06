@@ -41,7 +41,7 @@ class Type extends \Magento\Config\Block\System\Config\Form\Field\FieldArray\Abs
      */
     protected function _construct()
     {
-        $this->addColumn('akeneo_type', ['label' => __('Akeneo')]);
+        $this->addColumn('pim_type', ['label' => __('Pim')]);
         $this->addColumn('magento_type', ['label' => __('Magento')]);
         $this->_addAfter = false;
         $this->_addButtonLabel = __('Add');

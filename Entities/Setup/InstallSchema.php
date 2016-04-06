@@ -47,7 +47,7 @@ class InstallSchema implements InstallSchemaInterface
                 Table::TYPE_TEXT,
                 255,
                 ['nullable' => false],
-                'Akeneo Code'
+                'Pim Code'
             )
             ->addColumn(
                 'entity_id',

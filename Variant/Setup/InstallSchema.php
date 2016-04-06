@@ -33,7 +33,7 @@ class InstallSchema implements InstallSchemaInterface
                 Table::TYPE_TEXT,
                 255,
                 ['nullable' => false, 'primary' => true],
-                'Akeneo code'
+                'Pim code'
             )
             ->addColumn(
                 'axis',

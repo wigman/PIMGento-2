@@ -12,7 +12,7 @@ class Attribute extends \Magento\Config\Block\System\Config\Form\Field\FieldArra
      */
     protected function _construct()
     {
-        $this->addColumn('akeneo_attribute', ['label' => __('Akeneo')]);
+        $this->addColumn('pim_attribute', ['label' => __('Pim')]);
         $this->addColumn('magento_attribute', ['label' => __('Magento')]);
         $this->_addAfter = false;
         $this->_addButtonLabel = __('Add');
