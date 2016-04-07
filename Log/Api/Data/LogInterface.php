@@ -68,7 +68,7 @@ interface LogInterface
      * Set ID
      *
      * @param int $id
-     * @return \Pimgento\Log\Api\Data\ImportInterface
+     * @return \Pimgento\Log\Api\Data\LogInterface
      */
     public function setId($id);
 
@@ -76,7 +76,7 @@ interface LogInterface
      * Set Identifier
      *
      * @param string $identifier
-     * @return \Pimgento\Log\Api\Data\ImportInterface
+     * @return \Pimgento\Log\Api\Data\LogInterface
      */
     public function setIdentifier($identifier);
 
@@ -84,7 +84,7 @@ interface LogInterface
      * Set code
      *
      * @param string $code
-     * @return \Pimgento\Log\Api\Data\ImportInterface
+     * @return \Pimgento\Log\Api\Data\LogInterface
      */
     public function setCode($code);
 
@@ -92,7 +92,7 @@ interface LogInterface
      * Set name
      *
      * @param string $name
-     * @return \Pimgento\Log\Api\Data\ImportInterface
+     * @return \Pimgento\Log\Api\Data\LogInterface
      */
     public function setName($name);
 
@@ -100,7 +100,7 @@ interface LogInterface
      * Set file
      *
      * @param string $file
-     * @return \Pimgento\Log\Api\Data\ImportInterface
+     * @return \Pimgento\Log\Api\Data\LogInterface
      */
     public function setFile($file);
 
@@ -108,7 +108,7 @@ interface LogInterface
      * Set status
      *
      * @param string $status
-     * @return \Pimgento\Log\Api\Data\ImportInterface
+     * @return \Pimgento\Log\Api\Data\LogInterface
      */
     public function setStatus($status);
 
@@ -116,7 +116,7 @@ interface LogInterface
      * Set creation time
      *
      * @param string $createdAt
-     * @return \Pimgento\Log\Api\Data\ImportInterface
+     * @return \Pimgento\Log\Api\Data\LogInterface
      */
     public function setCreatedAt($createdAt);
 

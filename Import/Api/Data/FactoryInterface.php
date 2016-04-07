@@ -100,7 +100,7 @@ interface FactoryInterface
      * Set Identifier
      *
      * @param string $identifier
-     * @return \Pimgento\Import\Api\Data\ImportInterface
+     * @return \Pimgento\Import\Api\Data\FactoryInterface
      */
     public function setIdentifier($identifier);
 
