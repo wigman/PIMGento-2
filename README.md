@@ -1,7 +1,7 @@
 # PIMGento
 
 ![alt text][logo]
-[logo]: http://i.imgur.com/YetRWJx.png "PIMGento : "
+[logo]: http://i.imgur.com/q0sdWSs.png "PIMGento : "
 
 PIMGento is a Magento 2 extension that allows you to import your catalog from Akeneo CSV files into Magento.
 
