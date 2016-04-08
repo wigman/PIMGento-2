@@ -20,4 +20,14 @@ class Config extends AbstractHelper
         );
     }
 
+    /**
+     * Retrieve Load Data Infile option
+     *
+     * @return int
+     */
+    public function getLoadDataLocal()
+    {
+        return $this->scopeConfig->getValue('pimgento/general/load_data_local');
+    }
+
 }

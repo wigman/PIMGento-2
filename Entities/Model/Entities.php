@@ -92,11 +92,14 @@ class Entities extends AbstractModel implements EntitiesInterface, IdentityInter
      */
     public function insertDataFromFile($file, $tableSuffix)
     {
+        $local = $this->_configHelper->getLoadDataLocal() ? true : false;
+
         return $this->_getResource()->loadDataInfile(
             $file,
             $this->getTableName($tableSuffix),
             $this->_configHelper->getCsvConfig()['fields_terminated'],
-            $this->_configHelper->getCsvConfig()['lines_terminated']
+            $this->_configHelper->getCsvConfig()['lines_terminated'],
+            $local
         );
     }
 
