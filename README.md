@@ -25,6 +25,26 @@ With PIMGento, you can import :
 * Magento >= 2.0 CE & EE
 * Set local_infile mysql variable to TRUE
 * Database encoding must be UTF-8
+* Add "driver_options" key to Magento default connection configuration (app/etc/env.php)
+
+```php
+'db' =>
+  array (
+    'table_prefix' => '',
+    'connection' =>
+    array (
+      'default' =>
+      array (
+        'host' => '',
+        'dbname' => '',
+        'username' => '',
+        'password' => '',
+        'active' => '1',
+        'driver_options' => array(PDO::MYSQL_ATTR_LOCAL_INFILE => true),
+      ),
+    ),
+  ),
+```
 
 With Akeneo 1.3 or 1.4, you need to install this Bundle (https://github.com/akeneo-labs/EnhancedConnectorBundle/) in order to generate appropriate CSV files for Magento.
 
