@@ -21,7 +21,7 @@ With PIMGento, you can import :
 
 ## Requirements
 
-* Akeneo 1.3 and 1.4
+* Akeneo 1.3, 1.4 and 1.5
 * Magento >= 2.0 CE & EE
 * Set local_infile mysql variable to TRUE
 * Database encoding must be UTF-8
