@@ -147,6 +147,21 @@ class Entities extends AbstractModel implements EntitiesInterface, IdentityInter
     }
 
     /**
+     * Copy column to an other
+     *
+     * @param string $tableName
+     * @param string $source
+     * @param string $target
+     * @return $this
+     */
+    public function copyColumn($tableName, $source, $target)
+    {
+        $this->_getResource()->copyColumn($tableName, $source, $target);
+
+        return $this;
+    }
+
+    /**
      * Drop temporary table
      *
      * @param string $tableSuffix

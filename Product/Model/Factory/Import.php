@@ -120,24 +120,10 @@ class Import extends Factory
                 foreach ($matches as $match) {
                     $pimAttr = $match['pim_attribute'];
                     $magentoAttr = $match['magento_attribute'];
-
-                    if ($connection->tableColumnExists($tmpTable, $pimAttr)) {
-                        $connection->addColumn($tmpTable, $magentoAttr, 'TEXT');
-                        $connection->update(
-                            $tmpTable, array($magentoAttr => new Expr('`' . $pimAttr . '`'))
-                        );
-                    }
+                    $this->_entities->copyColumn($tmpTable, $pimAttr, $magentoAttr);
                     
                     foreach ($stores as $local => $affected) {
-                        if ($connection->tableColumnExists($tmpTable, $pimAttr . '-' . $local)) {
-                            $connection->addColumn($tmpTable, $magentoAttr . '-' . $local, 'TEXT');
-                            $connection->update(
-                                $tmpTable,
-                                array(
-                                    $magentoAttr . '-' . $local => new Expr('`' . $pimAttr . '-' . $local . '`')
-                                )
-                            );
-                        }
+                        $this->_entities->copyColumn($tmpTable, $pimAttr . '-' . $local, $magentoAttr . '-' . $local);
                     }
                 }
 
