@@ -117,20 +117,30 @@ class Import extends Factory
         if ($matches) {
             $matches = unserialize($matches);
             if (is_array($matches)) {
-                $add = array();
                 foreach ($matches as $match) {
-                    $add[$match['pim_attribute']] = $match['magento_attribute'];
+                    $pimAttr = $match['pim_attribute'];
+                    $magentoAttr = $match['magento_attribute'];
+
+                    if ($connection->tableColumnExists($tmpTable, $pimAttr)) {
+                        $connection->addColumn($tmpTable, $magentoAttr, 'TEXT');
+                        $connection->update(
+                            $tmpTable, array($magentoAttr => new Expr('`' . $pimAttr . '`'))
+                        );
+                    }
+                    
                     foreach ($stores as $local => $affected) {
-                        $add[$match['pim_attribute'] . '-' . $local] = $match['magento_attribute'] . '-' . $local;
+                        if ($connection->tableColumnExists($tmpTable, $pimAttr . '-' . $local)) {
+                            $connection->addColumn($tmpTable, $magentoAttr . '-' . $local, 'TEXT');
+                            $connection->update(
+                                $tmpTable,
+                                array(
+                                    $magentoAttr . '-' . $local => new Expr('`' . $pimAttr . '-' . $local . '`')
+                                )
+                            );
+                        }
                     }
                 }
 
-                foreach ($add as $pim => $magento) {
-                    if ($connection->tableColumnExists($tmpTable, $pim)) {
-                        $connection->addColumn($tmpTable, $magento, 'TEXT');
-                        $connection->update($tmpTable, array($magento => new Expr('`' . $pim . '`')));
-                    }
-                }
             }
         }
     }
