@@ -179,6 +179,7 @@ class Entities extends AbstractDb
 
         $query = "LOAD DATA" . ($local ? ' LOCAL' : '') . " INFILE '" . $tmpFile . "' REPLACE
               INTO TABLE " . $tableName . "
+              CHARACTER SET UTF8
               FIELDS TERMINATED BY '" . $fieldsTerminated . "'
               OPTIONALLY ENCLOSED BY '\"'
               LINES TERMINATED BY '" . $linesTerminated . "'
@@ -328,6 +329,28 @@ class Entities extends AbstractDb
                     }
                 }
             }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Copy column to an other
+     *
+     * @param string $tableName
+     * @param string $source
+     * @param string $target
+     * @return $this
+     */
+    public function copyColumn($tableName, $source, $target)
+    {
+        $connection = $this->getConnection();
+
+        if ($connection->tableColumnExists($tableName, $source)) {
+            $connection->addColumn($tableName, $target, 'TEXT');
+            $connection->update(
+                $tableName, array($target => new Expr('`' . $source . '`'))
+            );
         }
 
         return $this;
