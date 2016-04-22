@@ -7,17 +7,18 @@ interface FactoryInterface
     /**
      * Constants for keys of data array.
      */
-    const IDENTIFIER    = 'identifier';
-    const CODE          = 'code';
-    const SORT_ORDER    = 'sort_order';
-    const NAME          = 'name';
-    const CLASS_NAME    = 'class_name';
-    const STEPS         = 'steps';
-    const STEP          = 'step';
-    const MESSAGE       = 'message';
-    const STATUS        = 'status';
-    const CONTINUE_STEP = 'continue';
-    const FILE          = 'file';
+    const IDENTIFIER       = 'identifier';
+    const CODE             = 'code';
+    const SORT_ORDER       = 'sort_order';
+    const NAME             = 'name';
+    const CLASS_NAME       = 'class_name';
+    const STEPS            = 'steps';
+    const STEP             = 'step';
+    const MESSAGE          = 'message';
+    const STATUS           = 'status';
+    const CONTINUE_STEP    = 'continue';
+    const FILE             = 'file';
+    const FILE_IS_REQUIRED = 'file_is_required';
 
     /**
      * Get identifier
@@ -95,6 +96,13 @@ interface FactoryInterface
      * @return string
      */
     public function getFile();
+
+    /**
+     * Get File is required
+     *
+     * @return bool
+     */
+    public function getFileIsRequired();
 
     /**
      * Set Identifier
@@ -183,5 +191,13 @@ interface FactoryInterface
      * @return \Pimgento\Import\Api\Data\FactoryInterface
      */
     public function setFile($file);
+
+    /**
+     * Set File is Required
+     *
+     * @param bool $isRequired
+     * @return \Pimgento\Import\Api\Data\FactoryInterface
+     */
+    public function setFileIsRequired($isRequired);
 
 }

@@ -24,6 +24,7 @@ class AddPimgentoImportObserver implements ObserverInterface
                 'name'       => __('Variant'),
                 'class'      => '\Pimgento\Variant\Model\Factory\Import',
                 'sort_order' => 50,
+                'file_is_required' => true,
                 'steps' => array(
                     array(
                         'comment' => __('Create temporary table'),

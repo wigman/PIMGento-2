@@ -4,6 +4,7 @@ namespace Pimgento\Import\Model;
 
 use \Magento\Framework\DataObject;
 use \Pimgento\Import\Model\Import\Collection;
+use \Exception;
 
 class Import extends DataObject
 {
@@ -31,10 +32,21 @@ class Import extends DataObject
      *
      * @param string $code
      * @return \Pimgento\Import\Model\Factory
+     * @throws Exception
      */
     public function load($code)
     {
-        return $this->_importCollection->addCodeFilter($code)->loadImport()->getFirstItem();
+        if (!$code) {
+            throw new Exception(__('Import code is empty'));
+        }
+
+        $import = $this->_importCollection->addCodeFilter($code)->loadImport()->getFirstItem();
+
+        if (!$import->hasData()) {
+            throw new Exception(__('Import %1 not found', $code));
+        }
+
+        return $import;
     }
 
     /**

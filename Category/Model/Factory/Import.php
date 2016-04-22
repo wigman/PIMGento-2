@@ -65,7 +65,15 @@ class Import extends Factory
     {
         $file = $this->getUploadDir() . '/' . $this->getFile();
 
-        $this->_entities->createTmpTableFromFile($file, $this->getCode(), array('code', 'parent'));
+        if (!is_file($file)) {
+            $this->setContinue(false);
+            $this->setStatus(false);
+            $this->setMessage(
+                __('File %1 not found in %2', $this->getFile(), $this->getUploadDir())
+            );
+        } else {
+            $this->_entities->createTmpTableFromFile($file, $this->getCode(), array('code', 'parent'));
+        }
     }
 
     /**

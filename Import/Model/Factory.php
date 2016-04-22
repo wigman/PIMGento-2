@@ -108,6 +108,10 @@ class Factory extends DataObject implements FactoryInterface
             }
         }
 
+        if ($this->getFileIsRequired() && !$this->getFile()) {
+            $canExecute = false;
+        }
+
         return $canExecute;
     }
 
@@ -403,6 +407,27 @@ class Factory extends DataObject implements FactoryInterface
     public function setFile($file)
     {
         return $this->setData(self::FILE, $file);
+    }
+
+    /**
+     * Retrieve file is Required
+     *
+     * @return bool
+     */
+    public function getFileIsRequired()
+    {
+        return $this->getData(self::FILE_IS_REQUIRED);
+    }
+
+    /**
+     * Set file is required
+     *
+     * @param bool $isRequired
+     * @return $this
+     */
+    public function setFileIsRequired($isRequired)
+    {
+        return $this->setData(self::FILE_IS_REQUIRED, $isRequired);
     }
 
     /**
