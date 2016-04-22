@@ -110,7 +110,6 @@ php bin/magento pimgento:import --code=product --file=product.csv
 
 ## Roadmap
 
-* Command line tool (bin/magento) options for imports
 * Image files import
 * Link related products (related, cross-sells, up-sells)
 * French translation
