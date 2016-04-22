@@ -100,6 +100,14 @@ php bin/magento cache:flush
 * Launch import from admin panel in "System > Pimgento > Import"
 * After category import, set the "Root Category" for store in "Stores > Settings > All Stores"
 
+## Command line
+
+Launch import with command line:
+
+```shell
+php bin/magento pimgento:import --code=product --file=product.csv
+```
+
 ## Roadmap
 
 * Command line tool (bin/magento) options for imports
