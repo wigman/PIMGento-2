@@ -32,7 +32,7 @@ class View extends Action
      */
     protected function _isAllowed()
     {
-        return true;
+        return $this->_authorization->isAllowed('Pimgento_Log::pimgento_log');
     }
 
 }

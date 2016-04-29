@@ -26,7 +26,7 @@ class Index extends Action
      */
     protected function _isAllowed()
     {
-        return true;
+        return $this->_authorization->isAllowed('Pimgento_Import::pimgento_import');
     }
 
 }

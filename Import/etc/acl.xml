@@ -10,6 +10,11 @@
                         </resource>
                     </resource>
                 </resource>
+                <resource id="Magento_Backend::system">
+                    <resource id="Pimgento_Import::pimgento" title="Pimgento" sortOrder="100">
+                        <resource id="Pimgento_Import::pimgento_import" title="Import" sortOrder="10" />
+                    </resource>
+                </resource>
             </resource>
         </resources>
     </acl>
