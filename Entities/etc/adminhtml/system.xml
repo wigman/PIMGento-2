@@ -2,16 +2,16 @@
     <system>
         <section id="pimgento">
             <group id="general">
-                <field id="lines_terminated" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+                <field id="lines_terminated" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>CSV: line ending</label>
                 </field>
-                <field id="fields_terminated" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="0">
+                <field id="fields_terminated" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>CSV: delimiter</label>
                 </field>
-                <field id="fields_enclosure" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="0" showInStore="0">
+                <field id="fields_enclosure" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>CSV: enclosure</label>
                 </field>
-                <field id="load_data_local" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="0" showInStore="0">
+                <field id="load_data_local" translate="label" type="select" sortOrder="60" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Load Data Local</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <comment>Add LOCAL option to LOAD DATA INFILE request</comment>

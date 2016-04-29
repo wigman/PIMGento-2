@@ -13,6 +13,10 @@
                     <backend_model>Magento\Config\Model\Config\Backend\Serialized\ArraySerialized</backend_model>
                     <comment>Match Magento website with Pim channel</comment>
                 </field>
+                <field id="import_directory" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Import directory</label>
+                    <comment>var/{import_directory}</comment>
+                </field>
             </group>
         </section>
     </system>
