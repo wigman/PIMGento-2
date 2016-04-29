@@ -41,4 +41,18 @@ class Import extends Factory
         );
     }
 
+    /**
+     * Third step
+     */
+    public function fourthStep()
+    {
+        sleep(1); // Treatment
+
+        $this->setStatus(false);
+        $this->setContinue(false);
+        $this->setMessage(
+            __('Something is wrong, now we stop import')
+        );
+    }
+
 }

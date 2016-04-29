@@ -21,7 +21,7 @@ class AddPimgentoImportObserver implements ObserverInterface
         $collection->addImport(
             array(
                 'code'       => 'variant',
-                'name'       => __('Variant'),
+                'name'       => __('Variants'),
                 'class'      => '\Pimgento\Variant\Model\Factory\Import',
                 'sort_order' => 50,
                 'file_is_required' => true,
@@ -35,19 +35,19 @@ class AddPimgentoImportObserver implements ObserverInterface
                         'method'  => 'insertData',
                     ),
                     array(
-                        'comment' => __('Clean up variant'),
+                        'comment' => __('Clean up variants'),
                         'method'  => 'removeColumns',
                     ),
                     array(
-                        'comment' => __('Variant data enrichment'),
+                        'comment' => __('Variants data enrichment'),
                         'method'  => 'addColumns',
                     ),
                     array(
-                        'comment' => __('Fill variant data'),
+                        'comment' => __('Fill variants data'),
                         'method'  => 'updateData',
                     ),
                     array(
-                        'comment' => __('Drop  temporary table'),
+                        'comment' => __('Drop temporary table'),
                         'method'  => 'dropTable',
                     ),
                     array(

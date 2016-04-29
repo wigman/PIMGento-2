@@ -36,6 +36,10 @@ class AddPimgentoImportObserver implements ObserverInterface
                     array(
                         'comment' => __('Third step'),
                         'method'  => 'thirdStep',
+                    ),
+                    array(
+                        'comment' => __('Fourth step'),
+                        'method'  => 'fourthStep',
                     )
                 )
             )

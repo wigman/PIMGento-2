@@ -83,7 +83,7 @@ class AddPimgentoImportObserver implements ObserverInterface
                         'method'  => 'setUrlRewrite',
                     ),
                     array(
-                        'comment' => __('Drop  temporary table'),
+                        'comment' => __('Drop temporary table'),
                         'method'  => 'dropTable',
                     ),
                     array(

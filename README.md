@@ -106,7 +106,6 @@ php bin/magento pimgento:import --code=product --file=product.csv
 
 * Image files import
 * Link related products (related, cross-sells, up-sells)
-* French translation
 * Pim code exclusion
 
 ## About us

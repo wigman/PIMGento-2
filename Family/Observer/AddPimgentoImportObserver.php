@@ -47,7 +47,7 @@ class AddPimgentoImportObserver implements ObserverInterface
                         'method'  => 'initGroup',
                     ),
                     array(
-                        'comment' => __('Drop  temporary table'),
+                        'comment' => __('Drop temporary table'),
                         'method'  => 'dropTable',
                     ),
                     array(
