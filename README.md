@@ -52,12 +52,6 @@ With Akeneo 1.3 or 1.4, you need to install this Bundle (https://github.com/aken
 
 Install module by Composer as follows:
 
-Configure Composer to search for this repository
-
-```shell
-composer config repositories.agencednd/module-pimgento vcs https://github.com/Agence-DnD/PIMGento-2
-```
-Require this repository in Composer
 ```shell
 composer require agencednd/module-pimgento
 ```
