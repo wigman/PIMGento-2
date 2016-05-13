@@ -3,4 +3,4 @@
 "CSV: enclosure","CSV: champs entourés"
 "Load Data Local","Load Data Local"
 "Add LOCAL option to LOAD DATA INFILE request","Ajouter l'option LOCAL à la requête LOAD DATA INFILE"
-"Column %1 not found","Colinne %1 introuvable"
+"Column %1 not found","Colonne %1 introuvable"
