@@ -16,18 +16,18 @@ class Type extends AbstractHelper
     public function getType($pimType = 'default')
     {
         $types = array(
-            'default'                  => 'text',
-            'pim_catalog_identifier'   => 'text',
-            'pim_catalog_text'         => 'text',
-            'pim_catalog_metric'       => 'text',
-            'pim_catalog_number'       => 'text',
-            'pim_catalog_textarea'     => 'textarea',
-            'pim_catalog_date'         => 'date',
-            'pim_catalog_boolean'      => 'boolean',
-            'pim_catalog_simpleselect' => 'select',
-            'pim_catalog_multiselect'  => 'multiselect',
-            'pim_catalog_price'        => 'price',
-            'pim_catalog_tax'          => 'tax',
+            'default'                      => 'text',
+            'pim_catalog_identifier'       => 'text',
+            'pim_catalog_text'             => 'text',
+            'pim_catalog_metric'           => 'text',
+            'pim_catalog_number'           => 'text',
+            'pim_catalog_textarea'         => 'textarea',
+            'pim_catalog_date'             => 'date',
+            'pim_catalog_boolean'          => 'boolean',
+            'pim_catalog_simpleselect'     => 'select',
+            'pim_catalog_multiselect'      => 'multiselect',
+            'pim_catalog_price_collection' => 'price',
+            'pim_catalog_tax'              => 'tax',
         );
 
         $types = array_merge($types, $this->getAdditionalTypes());
