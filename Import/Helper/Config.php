@@ -152,4 +152,14 @@ class Config extends AbstractHelper
         return $data;
     }
 
+    /**
+     * Retrieve default website id
+     *
+     * @return int
+     */
+    public function getDefaultWebsiteId()
+    {
+        return $this->_storeManager->getStore()->getWebsiteId();
+    }
+
 }

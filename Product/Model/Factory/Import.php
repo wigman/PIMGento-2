@@ -653,35 +653,28 @@ class Import extends Factory
         $connection = $this->_entities->getResource()->getConnection();
         $tmpTable = $this->_entities->getTableName($this->getCode());
 
-        $websites = $this->_helperConfig->getStores('website_id');
+        $websiteId = $this->_helperConfig->getDefaultWebsiteId();
 
-        foreach ($websites as $websiteId => $affected) {
-            if ($websiteId == 0) {
-                continue;
-            }
+        $values = array(
+            'product_id' => '_entity_id',
+            'stock_id' => new Expr(1),
+            'qty' => new Expr(0),
+            'is_in_stock' => new Expr(0),
+            'low_stock_date' => new Expr('NULL'),
+            'stock_status_changed_auto' => new Expr(0),
+            'website_id' => new Expr($websiteId),
+        );
 
-            $values = array(
-                'product_id' => '_entity_id',
-                'stock_id' => new Expr(1),
-                'qty' => new Expr(0),
-                'is_in_stock' => new Expr(0),
-                'low_stock_date' => new Expr('NULL'),
-                'stock_status_changed_auto' => new Expr(0),
-                'website_id' => new Expr($websiteId),
-            );
+        $select = $connection->select()->from($tmpTable, $values)->where('_type_id = ?', 'simple');
 
-            $select = $connection->select()->from($tmpTable, $values)->where('_type_id = ?', 'simple');
-
-            $connection->query(
-                $connection->insertFromSelect(
-                    $select,
-                    $connection->getTableName('cataloginventory_stock_item'),
-                    array_keys($values),
-                    2
-                )
-            );
-
-        }
+        $connection->query(
+            $connection->insertFromSelect(
+                $select,
+                $connection->getTableName('cataloginventory_stock_item'),
+                array_keys($values),
+                2
+            )
+        );
     }
 
     /**
