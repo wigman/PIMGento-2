@@ -665,7 +665,7 @@ class Import extends Factory
             'website_id' => new Expr($websiteId),
         );
 
-        $select = $connection->select()->from($tmpTable, $values)->where('_type_id = ?', 'simple');
+        $select = $connection->select()->from($tmpTable, $values);
 
         $connection->query(
             $connection->insertFromSelect(
