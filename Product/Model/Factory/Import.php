@@ -120,7 +120,14 @@ class Import extends Factory
 
         $matches = $this->_scopeConfig->getValue('pimgento/product/attribute_mapping');
 
-        $stores = $this->_helperConfig->getStores('lang');
+        $stores = array_merge(
+            $this->_helperConfig->getStores(array('lang')), // en_US
+            $this->_helperConfig->getStores(array('channel_code')), // channel
+            $this->_helperConfig->getStores(array('channel_code', 'lang')), // channel-en_US
+            $this->_helperConfig->getStores(array('currency')), // USD
+            $this->_helperConfig->getStores(array('channel_code', 'currency')), // channel-USD
+            $this->_helperConfig->getStores(array('lang', 'channel_code', 'currency')) // en_US-channel-USD
+        );
 
         if ($matches) {
             $matches = unserialize($matches);
@@ -185,7 +192,14 @@ class Import extends Factory
 
                 $attributes = explode(',', $additional);
 
-                $stores = $this->_helperConfig->getStores('lang');
+                $stores = array_merge(
+                    $this->_helperConfig->getStores(array('lang')), // en_US
+                    $this->_helperConfig->getStores(array('channel_code')), // channel
+                    $this->_helperConfig->getStores(array('channel_code', 'lang')), // channel-en_US
+                    $this->_helperConfig->getStores(array('currency')), // USD
+                    $this->_helperConfig->getStores(array('channel_code', 'currency')), // channel-USD
+                    $this->_helperConfig->getStores(array('lang', 'channel_code', 'currency')) // en_US-channel-USD
+                );
 
                 foreach ($attributes as $attribute) {
                     foreach ($stores as $local => $affected) {
