@@ -16,7 +16,6 @@
     "files": [
       "Attribute/registration.php",
       "Category/registration.php",
-      "Demo/registration.php",
       "Entities/registration.php",
       "Family/registration.php",
       "Import/registration.php",
