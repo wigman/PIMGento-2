@@ -7,7 +7,7 @@
     "magento/framework": "100.0.*"
   },
   "type": "magento2-module",
-  "version": "100.0.7",
+  "version": "100.0.8",
   "license": [
     "OSL-3.0",
     "AFL-3.0"
@@ -16,7 +16,6 @@
     "files": [
       "Attribute/registration.php",
       "Category/registration.php",
-      "Demo/registration.php",
       "Entities/registration.php",
       "Family/registration.php",
       "Import/registration.php",

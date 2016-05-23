@@ -32,6 +32,12 @@ class Import extends Factory
     protected $_cacheTypeList;
 
     /**
+     * list of allowed type_id that can be imported
+     * @var string[]
+     */
+    protected $_allowedTypeId = ['simple', 'virtual'];
+
+    /**
      * @param \Pimgento\Entities\Model\Entities $entities
      * @param \Pimgento\Import\Helper\Config $helperConfig
      * @param \Magento\Framework\Module\Manager $moduleManager
@@ -118,9 +124,26 @@ class Import extends Factory
             $connection->update($tmpTable, array('_visibility' => new Expr('IF(`groups` <> "", 1, 4)')));
         }
 
+        if ($connection->tableColumnExists($tmpTable, 'type_id')) {
+            $types = $connection->quote($this->_allowedTypeId);
+            $connection->update(
+                $tmpTable,
+                array(
+                    '_type_id' => new Expr("IF(`type_id` IN ($types), `type_id`, 'simple')")
+                )
+            );
+        }
+
         $matches = $this->_scopeConfig->getValue('pimgento/product/attribute_mapping');
 
-        $stores = $this->_helperConfig->getStores('lang');
+        $stores = array_merge(
+            $this->_helperConfig->getStores(array('lang')), // en_US
+            $this->_helperConfig->getStores(array('channel_code')), // channel
+            $this->_helperConfig->getStores(array('channel_code', 'lang')), // channel-en_US
+            $this->_helperConfig->getStores(array('currency')), // USD
+            $this->_helperConfig->getStores(array('channel_code', 'currency')), // channel-USD
+            $this->_helperConfig->getStores(array('lang', 'channel_code', 'currency')) // en_US-channel-USD
+        );
 
         if ($matches) {
             $matches = unserialize($matches);
@@ -129,7 +152,7 @@ class Import extends Factory
                     $pimAttr = $match['pim_attribute'];
                     $magentoAttr = $match['magento_attribute'];
                     $this->_entities->copyColumn($tmpTable, $pimAttr, $magentoAttr);
-                    
+
                     foreach ($stores as $local => $affected) {
                         $this->_entities->copyColumn($tmpTable, $pimAttr . '-' . $local, $magentoAttr . '-' . $local);
                     }
@@ -185,7 +208,14 @@ class Import extends Factory
 
                 $attributes = explode(',', $additional);
 
-                $stores = $this->_helperConfig->getStores('lang');
+                $stores = array_merge(
+                    $this->_helperConfig->getStores(array('lang')), // en_US
+                    $this->_helperConfig->getStores(array('channel_code')), // channel
+                    $this->_helperConfig->getStores(array('channel_code', 'lang')), // channel-en_US
+                    $this->_helperConfig->getStores(array('currency')), // USD
+                    $this->_helperConfig->getStores(array('channel_code', 'currency')), // channel-USD
+                    $this->_helperConfig->getStores(array('lang', 'channel_code', 'currency')) // en_US-channel-USD
+                );
 
                 foreach ($attributes as $attribute) {
                     foreach ($stores as $local => $affected) {
