@@ -2,6 +2,7 @@
   
   * add some documentations (changelog, license, contributing)
   * add ability to use full path filename on setFile method, in order to import files that are not in the upload folder.
+  * add new config option Pimgento\General\data_insertion_method with 2 values : "Load Data Infile" and "By 1000 rows"
 
 ### [1.0.8] - 2016-05-20
 
