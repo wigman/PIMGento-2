@@ -19,6 +19,9 @@
                     <label>Load Data Local</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <comment>Add LOCAL option to LOAD DATA INFILE request</comment>
+                    <depends>
+                        <field id="data_insertion_method">data_in_file</field>
+                    </depends>
                 </field>
             </group>
         </section>

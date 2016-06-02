@@ -106,7 +106,6 @@ php bin/magento pimgento:import --code=product --file=product.csv
 
 ## Roadmap
 
-* Default configurable attribute values configuration (Example: force status to enabled)
 * Image files import
 * Link related products (related, cross-sells, up-sells)
 * Pim code exclusion

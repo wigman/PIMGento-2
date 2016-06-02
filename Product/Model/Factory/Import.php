@@ -135,18 +135,17 @@ class Import extends Factory
 
         $matches = $this->_scopeConfig->getValue('pimgento/product/attribute_mapping');
 
-        $stores = array_merge(
-            $this->_helperConfig->getStores(array('lang')), // en_US
-            $this->_helperConfig->getStores(array('channel_code')), // channel
-            $this->_helperConfig->getStores(array('channel_code', 'lang')), // channel-en_US
-            $this->_helperConfig->getStores(array('currency')), // USD
-            $this->_helperConfig->getStores(array('channel_code', 'currency')), // channel-USD
-            $this->_helperConfig->getStores(array('lang', 'channel_code', 'currency')) // en_US-channel-USD
-        );
-
         if ($matches) {
             $matches = unserialize($matches);
             if (is_array($matches)) {
+                $stores = array_merge(
+                    $this->_helperConfig->getStores(array('lang')), // en_US
+                    $this->_helperConfig->getStores(array('channel_code')), // channel
+                    $this->_helperConfig->getStores(array('channel_code', 'lang')), // channel-en_US
+                    $this->_helperConfig->getStores(array('currency')), // USD
+                    $this->_helperConfig->getStores(array('channel_code', 'currency')), // channel-USD
+                    $this->_helperConfig->getStores(array('lang', 'channel_code', 'currency')) // en_US-channel-USD
+                );
                 foreach ($matches as $match) {
                     $pimAttr = $match['pim_attribute'];
                     $magentoAttr = $match['magento_attribute'];
@@ -204,34 +203,51 @@ class Import extends Factory
             $additional = $this->_scopeConfig->getValue('pimgento/product/configurable_attributes');
 
             if ($additional) {
+                $additional = unserialize($additional);
+                if (is_array($additional)) {
 
-                $attributes = explode(',', $additional);
+                    $stores = array_merge(
+                        $this->_helperConfig->getStores(array('lang')), // en_US
+                        $this->_helperConfig->getStores(array('channel_code')), // channel
+                        $this->_helperConfig->getStores(array('channel_code', 'lang')), // channel-en_US
+                        $this->_helperConfig->getStores(array('currency')), // USD
+                        $this->_helperConfig->getStores(array('channel_code', 'currency')), // channel-USD
+                        $this->_helperConfig->getStores(array('lang', 'channel_code', 'currency')) // en_US-channel-USD
+                    );
 
-                $stores = array_merge(
-                    $this->_helperConfig->getStores(array('lang')), // en_US
-                    $this->_helperConfig->getStores(array('channel_code')), // channel
-                    $this->_helperConfig->getStores(array('channel_code', 'lang')), // channel-en_US
-                    $this->_helperConfig->getStores(array('currency')), // USD
-                    $this->_helperConfig->getStores(array('channel_code', 'currency')), // channel-USD
-                    $this->_helperConfig->getStores(array('lang', 'channel_code', 'currency')) // en_US-channel-USD
-                );
+                    foreach ($additional as $attribute) {
+                        $attr  = $attribute['attribute'];
+                        $value = $attribute['value'];
 
-                foreach ($attributes as $attribute) {
-                    foreach ($stores as $local => $affected) {
-                        $attributes[] = trim($attribute) . '-' . $local;
-                    }
-                }
+                        $columns = array(trim($attr));
+                        foreach ($stores as $local => $affected) {
+                            $columns[] = trim($attr) . '-' . $local;
+                        }
 
-                foreach ($attributes as $attribute) {
+                        foreach ($columns as $column) {
 
-                    if ($connection->tableColumnExists($tmpTable, $attribute)) {
-                        if ($connection->tableColumnExists($connection->getTableName('pimgento_variant'), $attribute)) {
-                            $data[$attribute] = 'v.' . $attribute;
-                        } else {
-                            $data[$attribute] = 'e.' . $attribute;
+                            if ($column == 'enabled') {
+                                if ($connection->tableColumnExists($tmpTable, 'enabled')) {
+                                    $column = '_status';
+                                    if ($value == "0") {
+                                        $value = "2";
+                                    }
+                                }
+                            }
+
+                            if ($connection->tableColumnExists($tmpTable, $column)) {
+                                if (!strlen($value)) {
+                                    if ($connection->tableColumnExists($connection->getTableName('pimgento_variant'), $column)) {
+                                        $data[$column] = 'v.' . $column;
+                                    } else {
+                                        $data[$column] = 'e.' . $column;
+                                    }
+                                } else {
+                                    $data[$column] = new Expr('"' . $value . '"');
+                                }
+                            }
                         }
                     }
-
                 }
 
             }

@@ -11,7 +11,9 @@
                 </field>
                 <field id="configurable_attributes" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Configurable</label>
-                    <comment>Fill configurable with Pim attributes above, comma separated</comment>
+                    <frontend_model>Pimgento\Product\Block\Adminhtml\System\Config\Form\Field\Configurable</frontend_model>
+                    <backend_model>Magento\Config\Model\Config\Backend\Serialized\ArraySerialized</backend_model>
+                    <comment>Fill configurable attributes with default value, leave blank to take simple product value or variant value if exists</comment>
                 </field>
             </group>
         </section>
