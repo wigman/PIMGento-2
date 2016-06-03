@@ -322,14 +322,31 @@ class Import extends Factory
             foreach ($stores as $lang => $data) {
                 if (isset($row['label-' . $lang])) {
                     foreach ($data as $store) {
-                        $values = array(
-                            'attribute_id' => $row['_entity_id'],
-                            'store_id' => $store['store_id'],
-                            'value' => $row['label-' . $lang]
+
+                        $exists = $connection->fetchOne(
+                            $connection->select()
+                                ->from($connection->getTableName('eav_attribute_label'))
+                                ->where('attribute_id = ?', $row['_entity_id'])
+                                ->where('store_id = ?', $store['store_id'])
                         );
-                        $connection->insertOnDuplicate(
-                            $connection->getTableName('eav_attribute_label'), $values, array_keys($values)
-                        );
+
+                        if ($exists) {
+                            $values = array(
+                                'value' => $row['label-' . $lang]
+                            );
+                            $where = array(
+                                'attribute_id = ?' => $row['_entity_id'],
+                                'store_id = ?' => $store['store_id']
+                            );
+                            $connection->update($connection->getTableName('eav_attribute_label'), $values, $where);
+                        } else {
+                            $values = array(
+                                'attribute_id' => $row['_entity_id'],
+                                'store_id' => $store['store_id'],
+                                'value' => $row['label-' . $lang]
+                            );
+                            $connection->insert($connection->getTableName('eav_attribute_label'), $values);
+                        }
                     }
                 }
             }
