@@ -1,11 +1,17 @@
 ### [not released]
 
+### [100.0.10] - 2016-06-03
+
+  * add: Website tax class configuration
+  * fix: Duplicate label for attributes
+  * fix: wrong value for attribute when unit association exists
+
 ### [100.0.9] - 2016-06-02
   
-  * add some documentations (changelog, license, contributing)
-  * add ability to use full path filename on setFile method, in order to import files that are not in the upload folder.
-  * add new config option Pimgento\General\data_insertion_method with 2 values : "Load Data Infile" and "By 1000 rows"
-  * add default configurable attribute values configuration (Example: force status to enabled)
+  * add: Some documentations (changelog, license, contributing)
+  * add: Ability to use full path filename on setFile method, in order to import files that are not in the upload folder.
+  * add: New config option Pimgento\General\data_insertion_method with 2 values : "Load Data Infile" and "By 1000 rows"
+  * add: Default configurable attribute values configuration (Example: force status to enabled)
 
 ### [100.0.8] - 2016-05-20
 

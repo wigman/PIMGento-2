@@ -5,6 +5,7 @@ namespace Pimgento\Product\Model\Factory;
 use \Pimgento\Import\Model\Factory;
 use \Pimgento\Entities\Model\Entities;
 use \Pimgento\Import\Helper\Config as helperConfig;
+use \Pimgento\Product\Helper\Config as productHelper;
 use \Magento\Framework\Event\ManagerInterface;
 use \Magento\Framework\App\Cache\TypeListInterface;
 use \Magento\Eav\Model\Entity\Attribute\SetFactory;
@@ -32,6 +33,11 @@ class Import extends Factory
     protected $_cacheTypeList;
 
     /**
+     * @var \Pimgento\Product\Helper\Config
+     */
+    protected $_productHelper;
+
+    /**
      * list of allowed type_id that can be imported
      * @var string[]
      */
@@ -40,6 +46,7 @@ class Import extends Factory
     /**
      * @param \Pimgento\Entities\Model\Entities $entities
      * @param \Pimgento\Import\Helper\Config $helperConfig
+     * @param \Pimgento\Product\Helper\Config $productHelper
      * @param \Magento\Framework\Module\Manager $moduleManager
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
      * @param \Magento\Framework\Event\ManagerInterface $eventManager
@@ -50,6 +57,7 @@ class Import extends Factory
     public function __construct(
         Entities $entities,
         helperConfig $helperConfig,
+        productHelper $productHelper,
         moduleManager $moduleManager,
         scopeConfig $scopeConfig,
         ManagerInterface $eventManager,
@@ -62,6 +70,7 @@ class Import extends Factory
         $this->_entities = $entities;
         $this->_cacheTypeList = $cacheTypeList;
         $this->_attributeSetFactory = $attributeSetFactory;
+        $this->_productHelper = $productHelper;
     }
 
     /**
@@ -339,6 +348,10 @@ class Import extends Factory
                 continue;
             }
 
+            if (preg_match('/-unit/', $column)) {
+                continue;
+            }
+
             $columnPrefix = explode('-', $column);
             $columnPrefix = reset($columnPrefix);
 
@@ -451,8 +464,19 @@ class Import extends Factory
             $values[0]['status'] = '_status';
         }
 
+        $taxClasses = $this->_productHelper->getProductTaxClasses();
+        if (count($taxClasses)) {
+            foreach ($taxClasses as $storeId => $taxClassId) {
+                $values[$storeId]['tax_class_id'] = new Expr($taxClassId);
+            }
+        }
+
         foreach ($columns as $column) {
             if (in_array($column, $except)) {
+                continue;
+            }
+
+            if (preg_match('/-unit/', $column)) {
                 continue;
             }
 

@@ -9,7 +9,13 @@
                     <backend_model>Magento\Config\Model\Config\Backend\Serialized\ArraySerialized</backend_model>
                     <comment>Fill additional Magento attributes from Pim attributes</comment>
                 </field>
-                <field id="configurable_attributes" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+                <field id="tax_class" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Default Tax Class</label>
+                    <frontend_model>Pimgento\Product\Block\Adminhtml\System\Config\Form\Field\Tax</frontend_model>
+                    <backend_model>Magento\Config\Model\Config\Backend\Serialized\ArraySerialized</backend_model>
+                    <comment>Set up default tax class for website</comment>
+                </field>
+                <field id="configurable_attributes" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Configurable</label>
                     <frontend_model>Pimgento\Product\Block\Adminhtml\System\Config\Form\Field\Configurable</frontend_model>
                     <backend_model>Magento\Config\Model\Config\Backend\Serialized\ArraySerialized</backend_model>
