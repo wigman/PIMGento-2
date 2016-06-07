@@ -1,5 +1,7 @@
 ### [not released]
 
+  * add: Import of Related / Cross-Sell / UP-Sell for products
+
 ### [100.0.10] - 2016-06-03
 
   * add: Website tax class configuration
