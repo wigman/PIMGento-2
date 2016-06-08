@@ -3,7 +3,7 @@
 namespace Pimgento\Import\Model;
 
 use \Magento\Framework\DataObject;
-use \Pimgento\Import\Model\Import\Collection;
+use \Pimgento\Import\Model\Import\CollectionFactory;
 use \Exception;
 
 class Import extends DataObject
@@ -15,15 +15,15 @@ class Import extends DataObject
     protected $_importCollection;
 
     /**
-     * @param \Pimgento\Import\Model\Import\Collection $importCollection
+     * @param CollectionFactory $importCollectionFactory
      * @param array $data
      */
     public function __construct(
-        Collection $importCollection,
+        CollectionFactory $importCollectionFactory,
         array $data = []
-    )
-    {
-        $this->_importCollection = $importCollection;
+    ) {
+        $this->_importCollection = $importCollectionFactory->create();
+
         parent::__construct($data);
     }
 

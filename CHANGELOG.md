@@ -1,5 +1,7 @@
 ### [not released]
 
+  * fix: use Magento2 factories to avoid bug when launching 2 imports during the same php execution
+
 ### [100.0.10] - 2016-06-03
 
   * add: Website tax class configuration

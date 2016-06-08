@@ -6,23 +6,24 @@ use \Magento\Framework\Event\ObserverInterface;
 use \Magento\Framework\Event\Observer;
 use \Pimgento\Log\Api\Data\LogInterface;
 use \Pimgento\Log\Model\Log as LogModel;
+use \Pimgento\Log\Model\LogFactory;
 
 class PimgentoImportStepStartObserver implements ObserverInterface
 {
 
     /**
-     * @var \Pimgento\Log\Model\Log
+     * @var LogFactory
      */
-    protected $_log;
+    protected $_logFactory;
 
     /**
      * Constructor
      *
-     * @param \Pimgento\Log\Model\Log $log
+     * @param LogFactory $logFactory
      */
-    public function __construct(LogModel $log)
+    public function __construct(LogFactory $logFactory)
     {
-        $this->_log = $log;
+        $this->_logFactory = $logFactory;
     }
 
     /**
@@ -36,25 +37,28 @@ class PimgentoImportStepStartObserver implements ObserverInterface
         /** @var $import \Pimgento\Import\Model\Factory */
         $import = $observer->getEvent()->getImport();
 
+        /** @var LogModel $log */
+        $log = $this->_logFactory->create();
+
         if ($import->getStep() == 0) {
-            $this->_log->setIdentifier($import->getIdentifier());
-            $this->_log->setCode($import->getCode());
-            $this->_log->setName($import->getName());
-            $this->_log->setFile($import->getFile());
-            $this->_log->setStatus(3); // processing
-            $this->_log->save();
+            $log->setIdentifier($import->getIdentifier());
+            $log->setCode($import->getCode());
+            $log->setName($import->getName());
+            $log->setFile($import->getFile());
+            $log->setStatus(3); // processing
+            $log->save();
         } else {
-            $this->_log->load($import->getIdentifier(), LogInterface::IDENTIFIER);
+            $log->load($import->getIdentifier(), LogInterface::IDENTIFIER);
         }
 
-        if ($this->_log->hasData()) {
-            $this->_log->addStep(
+        if ($log->hasData()) {
+            $log->addStep(
                 array(
-                    'log_id' => $this->_log->getId(),
+                    'log_id'     => $log->getId(),
                     'identifier' => $import->getIdentifier(),
-                    'number' => $import->getStep(),
-                    'method' => $import->getMethod(),
-                    'message' => $import->getComment(),
+                    'number'     => $import->getStep(),
+                    'method'     => $import->getMethod(),
+                    'message'    => $import->getComment(),
                 )
             );
         }
