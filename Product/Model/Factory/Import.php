@@ -6,6 +6,7 @@ use \Pimgento\Import\Model\Factory;
 use \Pimgento\Entities\Model\Entities;
 use \Pimgento\Import\Helper\Config as helperConfig;
 use \Pimgento\Product\Helper\Config as productHelper;
+use \Magento\Catalog\Model\Product\Link as Link;
 use \Magento\Framework\Event\ManagerInterface;
 use \Magento\Framework\App\Cache\TypeListInterface;
 use \Magento\Eav\Model\Entity\Attribute\SetFactory;
@@ -822,4 +823,101 @@ class Import extends Factory
         );
     }
 
+    /**
+     * Set related, up-sell and cross-sell
+     *
+     * @return void
+     */
+    public function setRelated()
+    {
+        $connection = $this->_entities->getResource()->getConnection();
+        $tmpTable = $this->_entities->getTableName($this->getCode());
+
+        $related = array();
+
+        // Product relations
+        if ($connection->tableColumnExists($tmpTable, 'RELATED-products')) {
+            $related[] = array(
+                'type_id' => Link::LINK_TYPE_RELATED,
+                'column'  => 'RELATED-products',
+            );
+        }
+        if ($connection->tableColumnExists($tmpTable, 'UPSELL-products')) {
+            $related[] = array(
+                'type_id' => Link::LINK_TYPE_UPSELL,
+                'column'  => 'UPSELL-products',
+            );
+        }
+        if ($connection->tableColumnExists($tmpTable, 'X_SELL-products')) {
+            $related[] = array(
+                'type_id' => Link::LINK_TYPE_CROSSSELL,
+                'column'  => 'X_SELL-products',
+            );
+        }
+        if ($connection->tableColumnExists($tmpTable, 'CROSSSELL-products')) {
+            $related[] = array(
+                'type_id' => Link::LINK_TYPE_CROSSSELL,
+                'column'  => 'CROSSSELL-products',
+            );
+        }
+
+        // Product group relations
+        if ($connection->tableColumnExists($tmpTable, 'RELATED-groups')) {
+            $related[] = array(
+                'type_id' => Link::LINK_TYPE_RELATED,
+                'column'  => 'RELATED-groups',
+            );
+        }
+        if ($connection->tableColumnExists($tmpTable, 'UPSELL-groups')) {
+            $related[] = array(
+                'type_id' => Link::LINK_TYPE_UPSELL,
+                'column'  => 'UPSELL-groups',
+            );
+        }
+        if ($connection->tableColumnExists($tmpTable, 'X_SELL-groups')) {
+            $related[] = array(
+                'type_id' => Link::LINK_TYPE_CROSSSELL,
+                'column'  => 'X_SELL-groups',
+            );
+        }
+        if ($connection->tableColumnExists($tmpTable, 'CROSSSELL-groups')) {
+            $related[] = array(
+                'type_id' => Link::LINK_TYPE_CROSSSELL,
+                'column'  => 'CROSSSELL-groups',
+            );
+        }
+        foreach ($related as $type) {
+            $select = $connection->select()
+                ->from(
+                    array(
+                        'c' => $connection->getTableName('pimgento_entities')
+                    ),
+                    array()
+                )
+                ->joinInner(
+                    array('p' => $tmpTable),
+                    'FIND_IN_SET(`c`.`code`, `p`.`' . $type['column'] . '`)
+                        AND `c`.`import` = "product"',
+                    array(
+                        'product_id'        => 'p._entity_id',
+                        'linked_product_id' => 'c.entity_id',
+                        'link_type_id'      => new Expr($type['type_id'])
+                    )
+                )
+                ->joinInner(
+                    array('e' => $connection->getTableName('catalog_product_entity')),
+                    'c.entity_id = e.entity_id',
+                    array()
+                );
+
+            $connection->query(
+                $connection->insertFromSelect(
+                    $select,
+                    $connection->getTableName('catalog_product_link'),
+                    array('product_id', 'linked_product_id', 'link_type_id'),
+                    AdapterInterface::INSERT_ON_DUPLICATE
+                )
+            );
+        }
+    }
 }

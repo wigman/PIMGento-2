@@ -79,6 +79,10 @@ class AddPimgentoImportObserver implements ObserverInterface
                         'method'  => 'initStock',
                     ),
                     array(
+                        'comment' => __('Update related, up-sell and cross-sell products'),
+                        'method'  => 'setRelated'
+                    ),
+                    array(
                         'comment' => __('Set Url Rewrite'),
                         'method'  => 'setUrlRewrite',
                     ),
