@@ -1,5 +1,6 @@
 ### [not released]
 
+  * fix: use Magento2 factories to avoid bug when launching 2 imports during the same php execution
   * add: Import of Related / Cross-Sell / UP-Sell for products
 
 ### [100.0.10] - 2016-06-03
