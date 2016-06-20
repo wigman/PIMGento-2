@@ -35,16 +35,10 @@ class Import extends Template
     protected $_import;
 
     /**
-     * @var AuthorizationInterface
-     */
-    protected $_authorization;
-
-    /**
      * @param \Magento\Backend\Model\UrlFactory $backendUrlFactory
      * @param \Magento\Framework\File\Size $fileConfig
      * @param \Magento\Backend\Block\Template\Context $context
      * @param \Pimgento\Import\Model\Import $import
-     * @param AuthorizationInterface $authorization
      * @param array $data
      */
     public function __construct(
@@ -52,7 +46,6 @@ class Import extends Template
         Size $fileConfig,
         Context $context,
         ImportModel $import,
-        AuthorizationInterface $authorization,
         array $data = []
     ) {
         parent::__construct($context, $data);
@@ -61,7 +54,6 @@ class Import extends Template
         $this->url = $backendUrlFactory->create();
         $this->fileConfig = $fileConfig;
         $this->maxFileSize = $this->getFileMaxSize();
-        $this->_authorization = $authorization;
     }
 
     /**
