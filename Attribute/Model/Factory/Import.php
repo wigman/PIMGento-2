@@ -136,11 +136,20 @@ class Import extends Factory
         $connection->addColumn($tmpTable, 'frontend_input', 'VARCHAR(255) NULL');
         $connection->addColumn($tmpTable, 'backend_model',  'VARCHAR(255) NULL');
         $connection->addColumn($tmpTable, 'source_model',   'VARCHAR(255) NULL');
+        $connection->addColumn($tmpTable, 'frontend_model', 'VARCHAR(255) NULL');
 
         $select = $connection->select()
             ->from(
                 $tmpTable,
-                array('_entity_id', 'type', 'backend_type', 'frontend_input', 'backend_model', 'source_model')
+                array(
+                    '_entity_id',
+                    'type',
+                    'backend_type',
+                    'frontend_input',
+                    'backend_model',
+                    'source_model',
+                    'frontend_model'
+                )
             );
 
         $data = $connection->fetchAssoc($select);
@@ -153,6 +162,7 @@ class Import extends Factory
                 'frontend_input' => $type['frontend_input'],
                 'backend_model'  => $type['backend_model'],
                 'source_model'   => $type['source_model'],
+                'frontend_model' => $type['frontend_model'],
             );
 
             $connection->update($tmpTable, $values, array('_entity_id = ?' => $id));
@@ -263,7 +273,7 @@ class Import extends Factory
                     'backend_model' => $row['backend_model'],
                     'backend_type' => $row['backend_type'],
                     'backend_table' => null,
-                    'frontend_model' => null,
+                    'frontend_model' => $row['frontend_model'],
                     'frontend_input' => $row['frontend_input'],
                     'frontend_label' => $frontendLabel,
                     'frontend_class' => null,
