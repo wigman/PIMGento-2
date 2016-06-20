@@ -107,7 +107,6 @@ php bin/magento pimgento:import --code=product --file=product.csv
 ## Roadmap
 
 * Image files import
-* Link related products (related, cross-sells, up-sells)
 * Pim code exclusion
 
 ## About us
