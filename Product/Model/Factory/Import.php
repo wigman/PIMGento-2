@@ -150,8 +150,8 @@ class Import extends Factory
             if (is_array($matches)) {
                 $stores = array_merge(
                     $this->_helperConfig->getStores(array('lang')), // en_US
+                    $this->_helperConfig->getStores(array('lang', 'channel_code')), // en_US-channel
                     $this->_helperConfig->getStores(array('channel_code')), // channel
-                    $this->_helperConfig->getStores(array('channel_code', 'lang')), // channel-en_US
                     $this->_helperConfig->getStores(array('currency')), // USD
                     $this->_helperConfig->getStores(array('channel_code', 'currency')), // channel-USD
                     $this->_helperConfig->getStores(array('lang', 'channel_code', 'currency')) // en_US-channel-USD
@@ -218,8 +218,8 @@ class Import extends Factory
 
                     $stores = array_merge(
                         $this->_helperConfig->getStores(array('lang')), // en_US
+                        $this->_helperConfig->getStores(array('lang', 'channel_code')), // en_US-channel
                         $this->_helperConfig->getStores(array('channel_code')), // channel
-                        $this->_helperConfig->getStores(array('channel_code', 'lang')), // channel-en_US
                         $this->_helperConfig->getStores(array('currency')), // USD
                         $this->_helperConfig->getStores(array('channel_code', 'currency')), // channel-USD
                         $this->_helperConfig->getStores(array('lang', 'channel_code', 'currency')) // en_US-channel-USD
@@ -426,8 +426,8 @@ class Import extends Factory
 
         $stores = array_merge(
             $this->_helperConfig->getStores(array('lang')), // en_US
+            $this->_helperConfig->getStores(array('lang', 'channel_code')), // en_US-channel
             $this->_helperConfig->getStores(array('channel_code')), // channel
-            $this->_helperConfig->getStores(array('channel_code', 'lang')), // channel-en_US
             $this->_helperConfig->getStores(array('currency')), // USD
             $this->_helperConfig->getStores(array('channel_code', 'currency')), // channel-USD
             $this->_helperConfig->getStores(array('lang', 'channel_code', 'currency')) // en_US-channel-USD

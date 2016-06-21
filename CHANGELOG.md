@@ -2,6 +2,7 @@
 
   * fix: DataSetup Constructor argument error when di is generated
   * fix: use Magento2 factories to avoid bug when launching 2 imports during the same php execution
+  * fix: Channel and language Inversion
   * add: Import of Related / Cross-Sell / UP-Sell for products
   * add: management of frontend_model on attribute import
   * add: events on attribute types
