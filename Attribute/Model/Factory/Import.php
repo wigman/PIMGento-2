@@ -8,7 +8,7 @@ use \Pimgento\Import\Helper\Config as helperConfig;
 use \Magento\Framework\Event\ManagerInterface;
 use \Magento\Framework\App\Cache\TypeListInterface;
 use \Pimgento\Attribute\Helper\Type as helperType;
-use \Magento\Eav\Setup\EavSetup;
+use \Pimgento\Attribute\Setup\AttributeSetup;
 use \Magento\Framework\Module\Manager as moduleManager;
 use \Magento\Framework\App\Config\ScopeConfigInterface as scopeConfig;
 use \Zend_Db_Expr as Expr;
@@ -44,7 +44,7 @@ class Import extends Factory
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
      * @param \Magento\Framework\Event\ManagerInterface $eventManager
      * @param \Pimgento\Attribute\Helper\Type $helperType
-     * @param \Magento\Eav\Setup\EavSetup $eavSetup
+     * @param \Pimgento\Attribute\Setup\AttributeSetup $attributeSetup
      * @param \Magento\Framework\App\Cache\TypeListInterface $cacheTypeList
      * @param array $data
      */
@@ -55,14 +55,14 @@ class Import extends Factory
         scopeConfig $scopeConfig,
         ManagerInterface $eventManager,
         helperType $helperType,
-        EavSetup $eavSetup,
+        AttributeSetup $attributeSetup,
         TypeListInterface $cacheTypeList,
         array $data = []
     )
     {
         parent::__construct($helperConfig, $eventManager, $moduleManager, $scopeConfig, $data);
         $this->_helperType = $helperType;
-        $this->_eavSetup = $eavSetup;
+        $this->_eavSetup = $attributeSetup;
         $this->_entities = $entities;
         $this->_cacheTypeList = $cacheTypeList;
     }
