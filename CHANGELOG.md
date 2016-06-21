@@ -58,7 +58,7 @@
 
 ### [100.0.2] - 2016-04-08
 
-  * add: LOAD DATA INFILE request configuration. You van add LOCAL option to request
+  * add: LOAD DATA INFILE request configuration. You can add LOCAL option to request
 
 ### [100.0.1] - 2016-04-06
 
