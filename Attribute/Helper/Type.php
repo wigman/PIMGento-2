@@ -3,34 +3,10 @@
 namespace Pimgento\Attribute\Helper;
 
 use \Magento\Framework\App\Helper\AbstractHelper;
-use \Magento\Framework\App\Helper\Context;
-use \Magento\Framework\Event\ManagerInterface as EventManager;
 use \Magento\Framework\DataObject;
 
 class Type extends AbstractHelper
 {
-
-    /**
-     * System event manager
-     *
-     * @var EventManager
-     */
-    protected $eventManager;
-
-    /**
-     * PHP Constructor
-     *
-     * @param Context      $context
-     * @param EventManager $eventManager
-     */
-    public function __construct(
-        Context      $context,
-        EventManager $eventManager
-    ) {
-        $this->eventManager = $eventManager;
-
-        parent::__construct($context);
-    }
 
     /**
      * Match Pim type with Magento attribute logic
@@ -189,7 +165,7 @@ class Type extends AbstractHelper
         $response = new DataObject();
         $response->setTypes($types);
 
-        $this->eventManager->dispatch(
+        $this->_eventManager->dispatch(
             'pimgento_attribute_get_available_types_add_after',
             ['response' => $response]
         );
