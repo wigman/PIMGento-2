@@ -12,6 +12,7 @@ use \Magento\Framework\App\Cache\TypeListInterface;
 use \Magento\Eav\Model\Entity\Attribute\SetFactory;
 use \Magento\Framework\Module\Manager as moduleManager;
 use \Magento\Framework\App\Config\ScopeConfigInterface as scopeConfig;
+use \Magento\Framework\DB\Adapter\AdapterInterface;
 use \Zend_Db_Expr as Expr;
 use \Exception;
 

@@ -1,4 +1,8 @@
-### [not released]
+### [100.0.12] - 2016-06-21
+
+  * fix: Import of Related / Cross-Sell / UP-Sell
+
+### [100.0.11] - 2016-06-21
 
   * fix: DataSetup Constructor argument error when di is generated
   * fix: use Magento2 factories to avoid bug when launching 2 imports during the same php execution
