@@ -3,9 +3,34 @@
 namespace Pimgento\Attribute\Helper;
 
 use \Magento\Framework\App\Helper\AbstractHelper;
+use \Magento\Framework\App\Helper\Context;
+use \Magento\Framework\Event\ManagerInterface as EventManager;
+use \Magento\Framework\DataObject;
 
 class Type extends AbstractHelper
 {
+
+    /**
+     * System event manager
+     *
+     * @var EventManager
+     */
+    protected $eventManager;
+
+    /**
+     * PHP Constructor
+     *
+     * @param Context      $context
+     * @param EventManager $eventManager
+     */
+    public function __construct(
+        Context      $context,
+        EventManager $eventManager
+    ) {
+        $this->eventManager = $eventManager;
+
+        parent::__construct($context);
+    }
 
     /**
      * Match Pim type with Magento attribute logic
@@ -72,56 +97,75 @@ class Type extends AbstractHelper
                 'frontend_input' => 'text',
                 'backend_model' => NULL,
                 'source_model' => NULL,
+                'frontend_model' => NULL,
             ),
             'text' =>  array(
                 'backend_type' => 'varchar',
                 'frontend_input' => 'text',
                 'backend_model' => NULL,
                 'source_model' => NULL,
+                'frontend_model' => NULL,
             ),
             'textarea' => array(
                 'backend_type' => 'text',
                 'frontend_input' => 'textarea',
                 'backend_model' => NULL,
                 'source_model' => NULL,
+                'frontend_model' => NULL,
             ),
             'date' => array(
                 'backend_type' => 'datetime',
                 'frontend_input' => 'date',
                 'backend_model' => 'Magento\Eav\Model\Entity\Attribute\Backend\Datetime',
                 'source_model' => NULL,
+                'frontend_model' => NULL,
             ),
             'boolean' => array(
                 'backend_type' => 'int',
                 'frontend_input' => 'boolean',
                 'backend_model' => NULL,
                 'source_model' => 'Magento\Eav\Model\Entity\Attribute\Source\Boolean',
+                'frontend_model' => NULL,
             ),
             'multiselect' => array(
                 'backend_type' => 'varchar',
                 'frontend_input' => 'multiselect',
                 'backend_model' => 'Magento\Eav\Model\Entity\Attribute\Backend\ArrayBackend',
                 'source_model' => NULL,
+                'frontend_model' => NULL,
             ),
             'select' => array(
                 'backend_type' => 'int',
                 'frontend_input' => 'select',
                 'backend_model' => NULL,
                 'source_model' => 'Magento\Eav\Model\Entity\Attribute\Source\Table',
+                'frontend_model' => NULL,
             ),
             'price' => array(
                 'backend_type' => 'decimal',
                 'frontend_input' => 'price',
                 'backend_model' => 'Magento\Catalog\Model\Product\Attribute\Backend\Price',
                 'source_model' => NULL,
+                'frontend_model' => NULL,
             ),
             'tax' => array(
                 'backend_type' => 'static',
                 'frontend_input' => 'weee',
                 'backend_model' => 'Magento\Weee\Model\Attribute\Backend\Weee\Tax',
                 'source_model' => NULL,
+                'frontend_model' => NULL,
             ),
         );
+
+        $response = new DataObject();
+        $response->setTypes($types);
+
+        $this->_eventManager->dispatch(
+            'pimgento_attribute_get_configuration_add_before',
+            ['response' => $response]
+        );
+
+        $types = $response->getTypes();
 
         return isset($types[$inputType]) ? $types[$inputType] : $types['default'];
     }
@@ -131,7 +175,7 @@ class Type extends AbstractHelper
      */
     public function getAvailableTypes()
     {
-        return array(
+        $types =  array(
             'text'        => 'text',
             'textarea'    => 'textarea',
             'date'        => 'date',
@@ -141,6 +185,18 @@ class Type extends AbstractHelper
             'price'       => 'price',
             'tax'         => 'tax',
         );
+
+        $response = new DataObject();
+        $response->setTypes($types);
+
+        $this->eventManager->dispatch(
+            'pimgento_attribute_get_available_types_add_after',
+            ['response' => $response]
+        );
+
+        $types = $response->getTypes();
+
+        return $types;
     }
 
 }
