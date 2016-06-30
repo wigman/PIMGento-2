@@ -1,3 +1,7 @@
+### [100.0.13] - 2016-06-30
+
+  * fix: multi-select attribute options
+
 ### [100.0.12] - 2016-06-21
 
   * fix: Import of Related / Cross-Sell / UP-Sell
