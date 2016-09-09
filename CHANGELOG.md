@@ -1,6 +1,7 @@
 ### [Not Released]
 
   * fix: refactoring on attribute import
+  * fix: issue #48 invalid website_id for stock_item for magento 2.1
   * add: new event `pimgento_attribute_get_specific_columns_add_after` that allows to add other columns for attribute definition
   * add: error message when import file with an invalid row (too many columns)
 
