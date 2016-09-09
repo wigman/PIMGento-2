@@ -65,8 +65,7 @@ class Import extends Factory
         SetFactory $attributeSetFactory,
         TypeListInterface $cacheTypeList,
         array $data = []
-    )
-    {
+    ) {
         parent::__construct($helperConfig, $eventManager, $moduleManager, $scopeConfig, $data);
         $this->_entities = $entities;
         $this->_cacheTypeList = $cacheTypeList;
@@ -889,38 +888,171 @@ class Import extends Factory
                 'column'  => 'CROSSSELL-groups',
             );
         }
+
+        $this->relatedCreateTmpTables();
         foreach ($related as $type) {
+            $this->relatedImportColumn($type);
+        }
+        $this->relatedDropTmpTables();
+    }
+
+    /**
+     * Create the temporary tables needed bby related product import
+     *
+     * @return void
+     */
+    protected function relatedCreateTmpTables()
+    {
+        $connection = $this->_entities->getResource()->getConnection();
+        $tableNumber = $connection->getTableName('tmp_pimgento_numbers');
+        $tableRelated = $connection->getTableName('tmp_pimgento_related');
+
+        $connection->dropTable($tableNumber);
+        $connection->dropTable($tableRelated);
+
+        $table = $connection->newTable($tableNumber);
+        $table->addColumn('n', \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER, 11, []);
+        $connection->createTable($table);
+
+        $table = $connection->newTable($tableRelated);
+        $table->addColumn('parent_sku', \Magento\Framework\DB\Ddl\Table::TYPE_TEXT, 255, []);
+        $table->addColumn('parent_id', \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER, 11, []);
+        $table->addColumn('child_sku', \Magento\Framework\DB\Ddl\Table::TYPE_TEXT, 255, []);
+        $table->addColumn('child_id', \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER, 11, []);
+        $connection->createTable($table);
+
+        $values = [];
+        for ($k=0; $k<10000; $k++) {
+            $values[] = ['n' => $k+1];
+        }
+        $connection->insertMultiple($tableNumber, $values);
+    }
+
+    /**
+     * Drop the temporary tables needed bby related product import
+     *
+     * @return void
+     */
+    protected function relatedDropTmpTables()
+    {
+        $connection = $this->_entities->getResource()->getConnection();
+        $tableNumber = $connection->getTableName('tmp_pimgento_numbers');
+        $tableRelated = $connection->getTableName('tmp_pimgento_related');
+
+        $connection->dropTable($tableNumber);
+        $connection->dropTable($tableRelated);
+    }
+
+    /**
+     * Manage one related column
+     *
+     * @param array $type
+     *
+     * @return void
+     */
+    protected function relatedImportColumn($type)
+    {
+        $connection = $this->_entities->getResource()->getConnection();
+
+        $tmpTable     = $this->_entities->getTableName($this->getCode());
+        $tableNumber  = $connection->getTableName('tmp_pimgento_numbers');
+        $tableRelated = $connection->getTableName('tmp_pimgento_related');
+        $tableProduct = $connection->getTableName('catalog_product_entity');
+
+        $column = $type['column'];
+
+        $select = $connection->select()
+            ->from(
+                ['t' => $tmpTable],
+                [
+                    'max_id' => new Expr('MAX(_entity_id)'),
+                    'min_id' => new Expr('MIN(_entity_id)'),
+                ]
+            )
+            ->where("`$column` <> ''");
+        $ids = $connection->fetchAll($select);
+        $ids = [
+            'min' => (int) $ids[0]['min_id'],
+            'max' => (int) $ids[0]['max_id'],
+        ];
+        if ($ids['max'] < 1) {
+            return false;
+        }
+
+        // we must do this step by step because of a mysql usage limitation
+        $step = 1000;
+        $min = $ids['min'] + $step;
+        $max = $ids['max'] + $step;
+        for ($limit = $min; $limit <= $max; $limit += $step) {
+            // transform one row for multiple links => one row for one link
             $select = $connection->select()
                 ->from(
-                    array(
-                        'c' => $connection->getTableName('pimgento_entities')
-                    ),
-                    array()
-                )
-                ->joinInner(
-                    array('p' => $tmpTable),
-                    'FIND_IN_SET(`c`.`code`, `p`.`' . $type['column'] . '`)
-                        AND `c`.`import` = "product"',
-                    array(
-                        'product_id'        => 'p._entity_id',
-                        'linked_product_id' => 'c.entity_id',
-                        'link_type_id'      => new Expr($type['type_id'])
-                    )
-                )
-                ->joinInner(
-                    array('e' => $connection->getTableName('catalog_product_entity')),
-                    'c.entity_id = e.entity_id',
-                    array()
+                    ['t' => $tmpTable],
+                    ['parent_sku' => 't.sku']
+                )->joinInner(
+                    ['n' => $tableNumber],
+                    "
+                        `t`.`$column` <> ''
+                        AND `t`.`_entity_id` <= $limit
+                        AND (char_length(t.`$column`) - char_length(replace(t.`$column`, ',', ''))) >= n.n-1 
+                    ",
+                    ['child_sku' => new Expr("substring_index(substring_index(t.`$column`, ',', n.n), ',', -1)")]
                 );
 
-            $connection->query(
-                $connection->insertFromSelect(
-                    $select,
-                    $connection->getTableName('catalog_product_link'),
-                    array('product_id', 'linked_product_id', 'link_type_id'),
-                    AdapterInterface::INSERT_ON_DUPLICATE
-                )
+            $query = $connection->insertFromSelect(
+                $select,
+                $tableRelated,
+                ['parent_sku', 'child_sku'],
+                AdapterInterface::INSERT_ON_DUPLICATE
+            );
+
+            $connection->query($query);
+            $connection->update(
+                $tmpTable,
+                [$column => ''],
+                ["_entity_id <= $limit" ]
             );
         }
+
+        // get the product ids for parents
+        // @todo use Zend methods for mass update
+        $query = "
+            UPDATE $tableRelated, $tableProduct
+            SET $tableRelated.parent_id = $tableProduct.entity_id
+            WHERE $tableRelated.parent_sku = $tableProduct.sku
+        ";
+        $connection->query($query);
+
+        // get the product ids for links
+        // @todo use Zend methods for mass update
+        $query = "
+            UPDATE $tableRelated, $tableProduct
+            SET $tableRelated.child_id = $tableProduct.entity_id
+            WHERE $tableRelated.child_sku = $tableProduct.sku
+        ";
+        $connection->query($query);
+
+        // delete bad links
+        $connection->delete($tableRelated, 'child_id IS NULL or parent_id IS NULL');
+
+        // save the links
+        $select = $connection->select()
+            ->from(
+                ['l' => $tableRelated],
+                [
+                    'product_id'        => 'l.parent_id',
+                    'linked_product_id' => 'l.child_id',
+                    'link_type_id'      => new Expr($type['type_id'])
+                ]
+            );
+        $query = $connection->insertFromSelect(
+            $select,
+            $connection->getTableName('catalog_product_link'),
+            ['product_id', 'linked_product_id', 'link_type_id'],
+            AdapterInterface::INSERT_ON_DUPLICATE
+        );
+        $connection->query($query);
+
+        $connection->delete($tableRelated);
     }
 }
