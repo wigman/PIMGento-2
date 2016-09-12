@@ -137,6 +137,10 @@ class AddPimgentoImportObserver implements ObserverInterface
                 'comment' => __('Set Url Rewrite'),
                 'method'  => 'setUrlRewrite',
             ),
+            array(
+                'comment' => __('Import media files'),
+                'method'  => 'importMedia',
+            ),
         );
 
         $responseFinalSteps = new DataObject();
