@@ -1135,11 +1135,41 @@ class Import extends Factory
         $table->addColumn('entity_id', \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER, 10, ['unsigned' => true]);
         $table->addColumn('attribute_id', \Magento\Framework\DB\Ddl\Table::TYPE_SMALLINT, 5, ['unsigned' => true]);
         $table->addColumn('store_id', \Magento\Framework\DB\Ddl\Table::TYPE_SMALLINT, 5, ['unsigned' => true]);
+        $table->addColumn('value_id', \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER, 10, ['unsigned' => true]);
+        $table->addColumn('record_id', \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER, 10, ['unsigned' => true]);
         $table->addColumn('media_original', \Magento\Framework\DB\Ddl\Table::TYPE_TEXT, 255, []);
         $table->addColumn('media_cleaned', \Magento\Framework\DB\Ddl\Table::TYPE_TEXT, 255, []);
         $table->addColumn('media_value', \Magento\Framework\DB\Ddl\Table::TYPE_TEXT, 255, []);
-        $table->addColumn('value_id', \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER, 10, ['unsigned' => true]);
-        $table->addColumn('record_id', \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER, 10, ['unsigned' => true]);
+        $table->addIndex(
+            $tableMedia.'_entity_id',
+            ['entity_id'],
+            ['type' => AdapterInterface::INDEX_TYPE_INDEX]
+        );
+        $table->addIndex(
+            $tableMedia.'_attribute_id',
+            ['attribute_id'],
+            ['type' => AdapterInterface::INDEX_TYPE_INDEX]
+        );
+        $table->addIndex(
+            $tableMedia.'_store_id',
+            ['store_id'],
+            ['type' => AdapterInterface::INDEX_TYPE_INDEX]
+        );
+        $table->addIndex(
+            $tableMedia.'_value_id',
+            ['value_id'],
+            ['type' => AdapterInterface::INDEX_TYPE_INDEX]
+        );
+        $table->addIndex(
+            $tableMedia.'_record_id',
+            ['record_id'],
+            ['type' => AdapterInterface::INDEX_TYPE_INDEX]
+        );
+        $table->addIndex(
+            $tableMedia.'_media_value',
+            ['media_value'],
+            ['type' => AdapterInterface::INDEX_TYPE_INDEX]
+        );
         $connection->createTable($table);
     }
 
@@ -1237,15 +1267,14 @@ class Import extends Factory
      *
      * @return int
      */
-    protected function mediaGetMaxId()
+    protected function mediaGetMaxId($tableName, $columnId)
     {
         $connection = $this->_entities->getResource()->getConnection();
-        $tableMedia = $connection->getTableName('tmp_pimgento_media');
 
         $select = $connection->select()
             ->from(
-                ['t' => $tableMedia],
-                ['max_id'         => new Expr('MAX(id)')]
+                ['t' => $tableName],
+                ['max_id'         => new Expr('MAX('.$columnId.')')]
             );
 
         $values = $connection->fetchAll($select);
@@ -1264,7 +1293,7 @@ class Import extends Factory
         $connection = $this->_entities->getResource()->getConnection();
         $tableMedia = $connection->getTableName('tmp_pimgento_media');
 
-        $maxId = $this->mediaGetMaxId();
+        $maxId = $this->mediaGetMaxId($tableMedia, 'id');
         if ($maxId<1) {
             return;
         }
@@ -1307,7 +1336,7 @@ class Import extends Factory
         $connection = $this->_entities->getResource()->getConnection();
         $tableMedia = $connection->getTableName('tmp_pimgento_media');
 
-        $maxId = $this->mediaGetMaxId();
+        $maxId = $this->mediaGetMaxId($tableMedia, 'id');
         if ($maxId<1) {
             return;
         }
@@ -1367,6 +1396,11 @@ class Import extends Factory
         $connection = $this->_entities->getResource()->getConnection();
         $tableMedia = $connection->getTableName('tmp_pimgento_media');
 
+        $maxId = $this->mediaGetMaxId($tableMedia, 'id');
+        if ($maxId<1) {
+            return;
+        }
+        $step = 5000;
 
         // add the media in the varchar product table
         $select = $connection->select()
@@ -1391,13 +1425,18 @@ class Import extends Factory
         $tableGallery = $connection->getTableName('catalog_product_entity_media_gallery');
 
         // get the value id from gallery (for already existing medias)
-        // @todo use Zend methods for mass update
-        $query = "
-            UPDATE $tableMedia, $tableGallery
-            SET $tableMedia.value_id = $tableGallery.value_id
-            WHERE $tableMedia.media_value = $tableGallery.value
-        ";
-        $connection->query($query);
+        for ($k=1; $k<=$maxId; $k+= $step) {
+            $min = $k;
+            $max = $k + $step;
+            // @todo use Zend methods for mass update
+            $query = "
+                UPDATE $tableMedia, $tableGallery
+                SET $tableMedia.value_id = $tableGallery.value_id
+                WHERE $tableMedia.id >= $min AND $tableMedia.id < $max
+                AND BINARY $tableMedia.media_value = $tableGallery.value
+            ";
+            $connection->query($query);
+        }
 
         // add the new medias to the gallery
         $select = $connection->select()
@@ -1422,28 +1461,39 @@ class Import extends Factory
         $connection->query($query);
 
         // get the value id from gallery (for new medias)
-        // @todo use Zend methods for mass update
-        $query = "
-            UPDATE $tableMedia, $tableGallery
-            SET $tableMedia.value_id = $tableGallery.value_id
-            WHERE $tableMedia.media_value = $tableGallery.value
-            AND $tableMedia.value_id IS NULL
-        ";
-        $connection->query($query);
+        for ($k=1; $k<=$maxId; $k+= $step) {
+            $min = $k;
+            $max = $k + $step;
+            // @todo use Zend methods for mass update
+            $query = "
+                UPDATE $tableMedia, $tableGallery
+                SET $tableMedia.value_id = $tableGallery.value_id
+                WHERE $tableMedia.id >= $min AND $tableMedia.id < $max
+                AND BINARY $tableMedia.media_value = $tableGallery.value
+                AND $tableMedia.value_id IS NULL
+            ";
+            $connection->query($query);
+        }
 
         // working on "media gallery value"
         $tableGallery = $connection->getTableName('catalog_product_entity_media_gallery_value');
 
         // get the record id from gallery value (for new medias)
-        // @todo use Zend methods for mass update
-        $query = "
-            UPDATE $tableMedia, $tableGallery
-            SET $tableMedia.record_id = $tableGallery.record_id
-            WHERE $tableMedia.value_id = $tableGallery.value_id
-            AND $tableMedia.store_id = $tableGallery.store_id
-            AND $tableMedia.entity_id = $tableGallery.entity_id
-        ";
-        $connection->query($query);
+        $maxId = $this->mediaGetMaxId($tableGallery, 'record_id');
+        for ($k=1; $k<=$maxId; $k+= $step) {
+            $min = $k;
+            $max = $k+$step;
+            // @todo use Zend methods for mass update
+            $query = "
+                UPDATE $tableMedia, $tableGallery
+                SET $tableMedia.record_id = $tableGallery.record_id
+                WHERE $tableGallery.record_id >= $min AND $tableGallery.record_id < $max
+                AND $tableGallery.entity_id = $tableMedia.entity_id
+                AND $tableGallery.value_id = $tableMedia.value_id
+                AND $tableGallery.store_id = $tableMedia.store_id
+            ";
+            $connection->query($query);
+        }
 
         // add the new medias to the gallery value
         $select = $connection->select()
