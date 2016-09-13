@@ -1110,9 +1110,13 @@ class Import extends Factory
         }
         $this->mediaCleanValues();
         $this->mediaRemoveUnknownFiles();
-        $this->mediaMoveOrCopyFiles();
+        $this->mediaCopyFiles();
         $this->mediaUpdateDataBase();
         $this->mediaDropTmpTables();
+
+        if ($this->_mediaHelper->isCleanFiles()) {
+            $this->_mediaHelper->cleanFiles();
+        }
 
         return true;
     }
@@ -1238,7 +1242,10 @@ class Import extends Factory
         $connection = $this->_entities->getResource()->getConnection();
         $tableMedia = $connection->getTableName('tmp_pimgento_media');
 
-        $expr = "TRIM(REPLACE(REPLACE(REPLACE(LOWER(`media_original`), '/', '-'), '-files-', ''), 'files-', ''))";
+        $expr = "REPLACE(REPLACE(REPLACE(LOWER(`media_original`), '/', '-'), '-files-', ''), 'files-', '')";
+        $connection->update($tableMedia, ['media_cleaned' => new Expr($expr)]);
+
+        $expr = "TRIM(CONCAT_WS('-', `sku`, `media_cleaned`))";
         $connection->update($tableMedia, ['media_cleaned' => new Expr($expr)]);
 
         $expr = "LEFT(REPLACE(`media_cleaned`, '-', ''), 4)";
@@ -1327,11 +1334,11 @@ class Import extends Factory
     }
 
     /**
-     * Move or copy the medias to the media folder of magento
+     * Copy the medias to the media folder of magento
      *
      * @return void
      */
-    protected function mediaMoveOrCopyFiles()
+    protected function mediaCopyFiles()
     {
         $connection = $this->_entities->getResource()->getConnection();
         $tableMedia = $connection->getTableName('tmp_pimgento_media');
@@ -1354,15 +1361,13 @@ class Import extends Factory
                 ]
             )->where(
                 "id >= $min AND id < $max"
-            )->group(
-                'media_original'
             );
             $medias = $connection->fetchAll($select);
             foreach ($medias as $media) {
                 $from = $this->_mediaHelper->getImportFolder().$media['from'];
                 $to = $this->_mediaHelper->getMediaAbsolutePath().$media['to'];
 
-                // if it does not exist, it has already been moved
+                // if it does not exist, we pass
                 if (!is_file($from)) {
                     continue;
                 }
@@ -1377,11 +1382,7 @@ class Import extends Factory
                     unlink($to);
                 }
 
-                if ($this->_mediaHelper->isMoveFile()) {
-                    rename($from, $to);
-                } else {
-                    copy($from, $to);
-                }
+                copy($from, $to);
             }
         }
     }
@@ -1395,11 +1396,6 @@ class Import extends Factory
     {
         $connection = $this->_entities->getResource()->getConnection();
         $tableMedia = $connection->getTableName('tmp_pimgento_media');
-
-        $maxId = $this->mediaGetMaxId($tableMedia, 'id');
-        if ($maxId<1) {
-            return;
-        }
         $step = 5000;
 
         // add the media in the varchar product table
@@ -1412,7 +1408,8 @@ class Import extends Factory
                     'entity_id'    => 'entity_id',
                     'value'        => 'media_value',
                 ]
-            );
+            )
+            ->where('t.attribute_id is not null');
         $query = $connection->insertFromSelect(
             $select,
             $connection->getTableName('catalog_product_entity_varchar'),
@@ -1425,6 +1422,7 @@ class Import extends Factory
         $tableGallery = $connection->getTableName('catalog_product_entity_media_gallery');
 
         // get the value id from gallery (for already existing medias)
+        $maxId = $this->mediaGetMaxId($tableGallery, 'value_id');
         for ($k=1; $k<=$maxId; $k+= $step) {
             $min = $k;
             $max = $k + $step;
@@ -1432,8 +1430,8 @@ class Import extends Factory
             $query = "
                 UPDATE $tableMedia, $tableGallery
                 SET $tableMedia.value_id = $tableGallery.value_id
-                WHERE $tableMedia.id >= $min AND $tableMedia.id < $max
-                AND BINARY $tableMedia.media_value = $tableGallery.value
+                WHERE $tableGallery.value_id >= $min AND $tableGallery.value_id < $max
+                AND BINARY $tableGallery.value = $tableMedia.media_value
             ";
             $connection->query($query);
         }
@@ -1461,6 +1459,7 @@ class Import extends Factory
         $connection->query($query);
 
         // get the value id from gallery (for new medias)
+        $maxId = $this->mediaGetMaxId($tableGallery, 'value_id');
         for ($k=1; $k<=$maxId; $k+= $step) {
             $min = $k;
             $max = $k + $step;
@@ -1468,8 +1467,8 @@ class Import extends Factory
             $query = "
                 UPDATE $tableMedia, $tableGallery
                 SET $tableMedia.value_id = $tableGallery.value_id
-                WHERE $tableMedia.id >= $min AND $tableMedia.id < $max
-                AND BINARY $tableMedia.media_value = $tableGallery.value
+                WHERE $tableGallery.value_id >= $min AND $tableGallery.value_id < $max
+                AND BINARY $tableGallery.value = $tableMedia.media_value
                 AND $tableMedia.value_id IS NULL
             ";
             $connection->query($query);

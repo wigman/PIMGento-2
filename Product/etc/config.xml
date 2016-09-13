@@ -13,6 +13,7 @@
                 <small_image>small_image</small_image>
                 <gallery_image>gallery_image</gallery_image>
                 <swatch_image>swatch_image</swatch_image>
+                <clean_files>0</clean_files>
             </image>
         </pimgento>
     </default>

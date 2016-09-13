@@ -82,7 +82,7 @@ class Media extends AbstractHelper
                     'attribute_id' => null,
                 ],
             ],
-            'is_move_file'      => (((int) $this->scopeConfig->getValue('pimgento/image/is_move_file')) == 1),
+            'clean_files'      => (((int) $this->scopeConfig->getValue('pimgento/image/clean_files')) == 1),
         ];
 
         // clean up empty fields
@@ -173,13 +173,13 @@ class Media extends AbstractHelper
     }
 
     /**
-     * Do we have to move the files, or to copy ?
+     * Do we have to clean the import folder for medias ?
      *
      * @return bool
      */
-    public function isMoveFile()
+    public function isCleanFiles()
     {
-        return $this->imageConfig['is_move_file'];
+        return $this->imageConfig['clean_files'];
     }
 
     /**
@@ -190,5 +190,17 @@ class Media extends AbstractHelper
     public function getMediaGalleryAttributeId()
     {
         return $this->imageConfig['media_gallery_attribute_id'];
+    }
+
+    /**
+     * Clean the file import folder
+     *
+     * @return void
+     */
+    public function cleanFiles()
+    {
+        $folder = $this->getImportFolder();
+
+        //@todo
     }
 }

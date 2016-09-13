@@ -28,8 +28,8 @@
                     <label>Relative Path to media folder</label>
                     <comment>If empty, will look at in the folder of the current imported file</comment>
                 </field>
-                <field id="is_move_file" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
-                    <label>Move files</label>
+                <field id="clean_files" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Clean files</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <comment>will delete the media from import folder</comment>
                 </field>
