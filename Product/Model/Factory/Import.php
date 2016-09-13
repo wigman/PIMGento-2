@@ -1113,7 +1113,15 @@ class Import extends Factory
         $this->mediaCopyFiles();
         $this->mediaUpdateDataBase();
         $this->mediaDropTmpTables();
+    }
 
+    /**
+     * Clean the media folder
+     *
+     * @return boolean
+     */
+    public function cleanMediaFolder()
+    {
         if ($this->_mediaHelper->isCleanFiles()) {
             $this->_mediaHelper->cleanFiles();
         }

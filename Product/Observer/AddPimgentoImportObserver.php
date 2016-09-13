@@ -157,6 +157,10 @@ class AddPimgentoImportObserver implements ObserverInterface
                 'method'  => 'dropTable',
             ),
             array(
+                'comment' => __('Clean Media Folder'),
+                'method'  => 'cleanMediaFolder',
+            ),
+            array(
                 'comment' => __('Clean cache'),
                 'method'  => 'cleanCache',
             )
