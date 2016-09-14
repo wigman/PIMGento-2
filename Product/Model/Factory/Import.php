@@ -1213,6 +1213,10 @@ class Import extends Factory
         $tmpTable   = $this->_entities->getTableName($this->getCode());
         $tableMedia = $connection->getTableName('tmp_pimgento_media');
 
+        if (is_null($attributeId)) {
+            $attributeId = 'NULL';
+        }
+
         $select = $connection->select()
             ->from(
                 ['t' => $tmpTable],
