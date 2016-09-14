@@ -1257,7 +1257,7 @@ class Import extends Factory
         $expr = "REPLACE(REPLACE(REPLACE(LOWER(`media_original`), '/', '-'), '-files-', ''), 'files-', '')";
         $connection->update($tableMedia, ['media_cleaned' => new Expr($expr)]);
 
-        $expr = "TRIM(CONCAT_WS('-', `sku`, `media_cleaned`))";
+        $expr = "TRIM(CONCAT_WS('-', LOWER(`sku`), `media_cleaned`))";
         $connection->update($tableMedia, ['media_cleaned' => new Expr($expr)]);
 
         $expr = "LEFT(REPLACE(`media_cleaned`, '-', ''), 4)";
