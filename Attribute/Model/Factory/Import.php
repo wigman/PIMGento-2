@@ -153,8 +153,8 @@ class Import extends Factory
         $tmpTable = $this->_entities->getTableName($this->getCode());
 
         $columns = $this->_helperType->getSpecificColumns();
-        foreach ($columns as $name => $type) {
-            $connection->addColumn($tmpTable, $name, $type);
+        foreach ($columns as $name => $def) {
+            $connection->addColumn($tmpTable, $name, $def['type']);
         }
 
         $select = $connection->select()
@@ -220,7 +220,7 @@ class Import extends Factory
      */
     public function addAttributes()
     {
-        $columns = array_keys($this->_helperType->getSpecificColumns());
+        $columns = $this->_helperType->getSpecificColumns();
         $connection = $this->_entities->getResource()->getConnection();
         $tmpTable = $this->_entities->getTableName($this->getCode());
 
@@ -266,26 +266,29 @@ class Import extends Factory
                 $global = 0; // Store View
             }
 
-            $data = array(
+            $data = [
                 'entity_type_id' => $this->getEntityTypeId(),
                 'attribute_code' => $row['code'],
                 'frontend_label' => $frontendLabel,
                 'is_global'      => $global,
-            );
+            ];
+            foreach ($columns as $column => $def) {
+                if (!$def['only_init']) {
+                    $data[$column] = $row[$column];
+                }
+            }
 
+
+            $defaultValues = [];
             if ($row['_is_new'] == 1) {
-                $data = array(
-                    'entity_type_id'                => $this->getEntityTypeId(),
-                    'attribute_code'                => $row['code'],
+                $defaultValues = [
                     'backend_table'                 => null,
-                    'frontend_label'                => $frontendLabel,
                     'frontend_class'                => null,
                     'is_required'                   => 0,
                     'is_user_defined'               => 1,
                     'default_value'                 => null,
                     'is_unique'                     => $row['unique'],
                     'note'                          => null,
-                    'is_global'                     => $global,
                     'is_visible'                    => 1,
                     'is_system'                     => 1,
                     'input_filter'                  => null,
@@ -311,12 +314,14 @@ class Import extends Factory
                     'apply_to'                      => null,
                     'position'                      => 0,
                     'is_used_for_promo_rules'       => 0,
-                );
+                ];
 
-                foreach ($columns as $column) {
+                foreach (array_keys($columns) as $column) {
                     $data[$column] = $row[$column];
                 }
             }
+
+            $data = array_merge($defaultValues, $data);
 
             $this->_eavSetup->updateAttribute(
                 $this->getEntityTypeId(),
