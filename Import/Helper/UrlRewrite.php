@@ -18,12 +18,12 @@ class UrlRewrite extends AbstractHelper
     /**
      * PHP Constructor
      *
-     * @param Entities $entities
      * @param Context  $context
+     * @param Entities $entities
      */
     public function __construct(
-        Entities $entities,
-        Context $context
+        Context $context,
+        Entities $entities
     ) {
         $this->_entities = $entities;
 
@@ -143,7 +143,7 @@ class UrlRewrite extends AbstractHelper
             ->from($tmpUrlRewriteTable, $values)
             ->where('`request_path` <> `old_request_path` AND `url_rewrite_id` IS NOT NULL');
 
-        $this->_insertInUrlRewriteTable($rewrite, array_keys($values));
+        $this->_insertInUrlRewriteTable($rewrite, array_keys($values), AdapterInterface::INSERT_ON_DUPLICATE);
 
         // Perform insert on url_rewrite_table
         unset($values['url_rewrite_id']);
@@ -151,7 +151,7 @@ class UrlRewrite extends AbstractHelper
             ->from($tmpUrlRewriteTable, $values)
             ->where('`url_rewrite_id` IS NULL');
 
-        $this->_insertInUrlRewriteTable($rewrite, array_keys($values));
+        $this->_insertInUrlRewriteTable($rewrite, array_keys($values), AdapterInterface::INSERT_IGNORE);
     }
 
     /**
@@ -159,10 +159,11 @@ class UrlRewrite extends AbstractHelper
      *
      * @param \Magento\Framework\DB\Select $select
      * @param array                        $columns
+     * @param int                          $insertionType
      *
      * @return void
      */
-    protected function _insertInUrlRewriteTable($select, $columns)
+    protected function _insertInUrlRewriteTable($select, $columns, $insertionType)
     {
         $connection      = $this->_entities->getResource()->getConnection();
         $urlRewriteTable = $connection->getTableName('url_rewrite');
@@ -172,7 +173,7 @@ class UrlRewrite extends AbstractHelper
                 $select,
                 $urlRewriteTable,
                 $columns,
-                AdapterInterface::INSERT_IGNORE
+                $insertionType
             )
         );
     }

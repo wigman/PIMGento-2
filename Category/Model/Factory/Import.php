@@ -335,6 +335,8 @@ class Import extends Factory
             }
 
         }
+
+        $this->_urlRewriteHelper->dropUrlRewriteTmpTable();
     }
 
     /**
