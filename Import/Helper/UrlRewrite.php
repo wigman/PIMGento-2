@@ -126,6 +126,9 @@ class UrlRewrite extends AbstractHelper
             )
         );
 
+        // Clean system generated urls (301, category paths)
+        $this->_cleanSystemUrlsBeforeInsertion();
+
         // Get values for update and insert in url_rewrite table
         $values = array(
             'url_rewrite_id'   => 'url_rewrite_id',
@@ -152,6 +155,43 @@ class UrlRewrite extends AbstractHelper
             ->where('`url_rewrite_id` IS NULL');
 
         $this->_insertInUrlRewriteTable($rewrite, array_keys($values), AdapterInterface::INSERT_IGNORE);
+    }
+
+    /**
+     * URL rewrite cleaning
+     *
+     * @return void
+     */
+    protected function _cleanSystemUrlsBeforeInsertion()
+    {
+        $connection         = $this->_entities->getResource()->getConnection();
+        $tmpUrlRewriteTable = $connection->getTableName('tmp_pimgento_rewrite');
+        $urlRewriteTable    = $connection->getTableName('url_rewrite');
+
+        $select = $connection->select()
+            ->from(
+                ['t' => $tmpUrlRewriteTable],
+                ['entity_id', 'url_rewrite_id']
+            )
+            ->where('`request_path` <> `old_request_path` AND `url_rewrite_id` IS NOT NULL');
+        $urls = $connection->fetchAll($select);
+
+        $entityIdsToDelete = [];
+        $urlIdsToKeep = [];
+        foreach ($urls as $url) {
+            $entityIdsToDelete[] = (int) $url['entity_id'];
+            $urlIdsToKeep[]      = (int) $url['url_rewrite_id'];
+        }
+
+        if (count($entityIdsToDelete)) {
+            $connection->delete(
+                $urlRewriteTable,
+                $connection->quoteInto(
+                    'entity_id IN (?) AND url_rewrite_id NOT IN (?)',
+                    [$entityIdsToDelete, $urlIdsToKeep]
+                )
+            );
+        }
     }
 
     /**
