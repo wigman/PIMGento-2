@@ -5,6 +5,7 @@
   * fix: better performance for related product import (x4 faster)
   * add: new event `pimgento_attribute_get_specific_columns_add_after` that allows to add other columns for attribute definition
   * add: error message when import file with an invalid row (too many columns)
+  * add: media import
 
 ### [100.1.0] - 2016-07-04
 

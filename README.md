@@ -104,9 +104,15 @@ Launch import with command line:
 php bin/magento pimgento:import --code=product --file=product.csv
 ```
 
+## Media import
+
+The media files are imported during the simple product import process.
+They must be in a folder *files* in the same folder of the simple product csv file.
+You can configure the columns to use in the Magento Catalog Pimgento configuration section.
+The value must be exactly the path of the image, relatively to the csv file: files/foo/bar.png
+
 ## Roadmap
 
-* Image files import
 * Pim code exclusion
 * Compatibility with Magento EE 2.1 + Staging
 

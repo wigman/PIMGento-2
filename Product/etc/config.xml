@@ -6,6 +6,15 @@
                 <attribute_mapping>a:1:{s:18:"_1459928423869_869";a:2:{s:13:"pim_attribute";s:11:"description";s:17:"magento_attribute";s:17:"short_description";}}</attribute_mapping>
                 <configurable_attributes>a:2:{s:18:"_1464857349718_718";a:2:{s:9:"attribute";s:11:"description";s:5:"value";s:0:"";}s:18:"_1464857373248_248";a:2:{s:9:"attribute";s:4:"name";s:5:"value";s:0:"";}}</configurable_attributes>
             </product>
+            <image>
+                <path></path>
+                <base_image>base_image</base_image>
+                <thumbnail_image>thumbnail_image</thumbnail_image>
+                <small_image>small_image</small_image>
+                <gallery_image>gallery_image</gallery_image>
+                <swatch_image>swatch_image</swatch_image>
+                <clean_files>0</clean_files>
+            </image>
         </pimgento>
     </default>
 </config>

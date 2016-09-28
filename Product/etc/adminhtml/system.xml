@@ -22,6 +22,39 @@
                     <comment>Fill configurable attributes with default value, leave blank to take simple product value or variant value if exists</comment>
                 </field>
             </group>
+            <group id="image" translate="label" type="text" sortOrder="120" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>Image</label>
+                <field id="path" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Relative Path to media folder</label>
+                    <comment>If empty, will look at in the folder of the current imported file</comment>
+                </field>
+                <field id="clean_files" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Clean files</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>will delete the media from import folder</comment>
+                </field>
+                <field id="base_image" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Base image column code</label>
+                    <frontend_class>required-entry</frontend_class>
+                </field>
+                <field id="thumbnail_image" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Thumbnail image column code</label>
+                    <frontend_class>required-entry</frontend_class>
+                </field>
+                <field id="small_image" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Small image column code</label>
+                    <frontend_class>required-entry</frontend_class>
+                </field>
+                <field id="swatch_image" translate="label" type="text" sortOrder="60" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Swatch image column code</label>
+                    <frontend_class>required-entry</frontend_class>
+                </field>
+                <field id="gallery_image" translate="label" type="text" sortOrder="70" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Gallery image columns code</label>
+                    <frontend_class>required-entry</frontend_class>
+                    <comment>Can have more than one column, with comma separator</comment>
+                </field>
+            </group>
         </section>
     </system>
 </config>

@@ -137,6 +137,10 @@ class AddPimgentoImportObserver implements ObserverInterface
                 'comment' => __('Set Url Rewrite'),
                 'method'  => 'setUrlRewrite',
             ),
+            array(
+                'comment' => __('Import media files'),
+                'method'  => 'importMedia',
+            ),
         );
 
         $responseFinalSteps = new DataObject();
@@ -151,6 +155,10 @@ class AddPimgentoImportObserver implements ObserverInterface
             array(
                 'comment' => __('Drop temporary table'),
                 'method'  => 'dropTable',
+            ),
+            array(
+                'comment' => __('Clean Media Folder'),
+                'method'  => 'cleanMediaFolder',
             ),
             array(
                 'comment' => __('Clean cache'),
