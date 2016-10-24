@@ -1,5 +1,6 @@
 ### [Not Released]
 
+  * fix: clean EAV cache on attribute import
   * fix: refactoring on attribute import
   * fix: issue #48 invalid website_id for stock_item for magento 2.1
   * fix: better performance for related product import (x4 faster)

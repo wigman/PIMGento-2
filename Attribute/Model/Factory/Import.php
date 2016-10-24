@@ -401,7 +401,8 @@ class Import extends Factory
     {
         $types = array(
             \Magento\Framework\App\Cache\Type\Block::TYPE_IDENTIFIER,
-            \Magento\PageCache\Model\Cache\Type::TYPE_IDENTIFIER
+            \Magento\PageCache\Model\Cache\Type::TYPE_IDENTIFIER,
+            \Magento\Eav\Model\Cache\Type::TYPE_IDENTIFIER,
         );
 
         foreach ($types as $type) {
