@@ -1,4 +1,4 @@
-### [100.1.1]
+### [100.1.1] - 2016-11-03
 
   WARNING: break compatibility on pimgento_attribute_get_specific_columns_add_after observer
 
