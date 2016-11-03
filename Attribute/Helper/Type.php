@@ -183,11 +183,26 @@ class Type extends AbstractHelper
     public function getSpecificColumns()
     {
         $columns = array(
-            'backend_type'   => 'VARCHAR(255) NULL',
-            'frontend_input' => 'VARCHAR(255) NULL',
-            'backend_model'  => 'VARCHAR(255) NULL',
-            'source_model'   => 'VARCHAR(255) NULL',
-            'frontend_model' => 'VARCHAR(255) NULL',
+            'backend_type'   => [
+                'type'      => 'VARCHAR(255) NULL',
+                'only_init' => true,
+            ],
+            'frontend_input' => [
+                'type'      => 'VARCHAR(255) NULL',
+                'only_init' => true,
+            ],
+            'backend_model'  => [
+                'type'      => 'VARCHAR(255) NULL',
+                'only_init' => true,
+            ],
+            'source_model'   => [
+                'type'      => 'VARCHAR(255) NULL',
+                'only_init' => true,
+            ],
+            'frontend_model' => [
+                'type'      => 'VARCHAR(255) NULL',
+                'only_init' => false,
+            ],
         );
 
         $response = new DataObject();
