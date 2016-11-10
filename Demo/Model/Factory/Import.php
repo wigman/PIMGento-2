@@ -3,7 +3,6 @@
 namespace Pimgento\Demo\Model\Factory;
 
 use \Pimgento\Import\Model\Factory;
-use \Exception;
 
 class Import extends Factory
 {
@@ -55,4 +54,15 @@ class Import extends Factory
         );
     }
 
+    /**
+     * Clean step
+     */
+    public function cleanStep()
+    {
+        sleep(1); // Treatment
+
+        $this->setMessage(
+            __('Clean process')
+        );
+    }
 }

@@ -2,62 +2,96 @@
 
 namespace Pimgento\Variant\Observer;
 
-use \Magento\Framework\Event\ObserverInterface;
-use \Magento\Framework\Event\Observer;
+use Magento\Framework\Event\ObserverInterface;
+use Pimgento\Import\Observer\AbstractAddImportObserver;
 
-class AddPimgentoImportObserver implements ObserverInterface
+class AddPimgentoImportObserver extends AbstractAddImportObserver implements ObserverInterface
 {
+    /**
+     * Get the import code
+     *
+     * @return string
+     */
+    protected function getImportCode()
+    {
+        return 'variant';
+    }
 
     /**
-     * Add import to Collection
+     * Get the import name
      *
-     * @param \Magento\Framework\Event\Observer $observer
+     * @return string
      */
-    public function execute(Observer $observer)
+    protected function getImportName()
     {
-        /** @var $collection \Pimgento\Import\Model\Import\Collection */
-        $collection = $observer->getEvent()->getCollection();
+        return __('Variants');
+    }
 
-        $collection->addImport(
+    /**
+     * Get the default import classname
+     *
+     * @return string
+     */
+    protected function getImportDefaultClassname()
+    {
+        return '\Pimgento\Variant\Model\Factory\Import';
+    }
+
+    /**
+     * Get the sort order
+     *
+     * @return int
+     */
+    protected function getImportSortOrder()
+    {
+        return 50;
+    }
+
+    /**
+     * get the steps definition
+     *
+     * @return array
+     */
+    protected function getStepsDefinition()
+    {
+        $stepsBefore = array(
             array(
-                'code'       => 'variant',
-                'name'       => __('Variants'),
-                'class'      => '\Pimgento\Variant\Model\Factory\Import',
-                'sort_order' => 50,
-                'file_is_required' => true,
-                'steps' => array(
-                    array(
-                        'comment' => __('Create temporary table'),
-                        'method'  => 'createTable',
-                    ),
-                    array(
-                        'comment' => __('Fill temporary table'),
-                        'method'  => 'insertData',
-                    ),
-                    array(
-                        'comment' => __('Clean up variants'),
-                        'method'  => 'removeColumns',
-                    ),
-                    array(
-                        'comment' => __('Variants data enrichment'),
-                        'method'  => 'addColumns',
-                    ),
-                    array(
-                        'comment' => __('Fill variants data'),
-                        'method'  => 'updateData',
-                    ),
-                    array(
-                        'comment' => __('Drop temporary table'),
-                        'method'  => 'dropTable',
-                    ),
-                    array(
-                        'comment' => __('Clean cache'),
-                        'method'  => 'cleanCache',
-                    )
-                )
+                'comment' => __('Create temporary table'),
+                'method'  => 'createTable',
+            ),
+            array(
+                'comment' => __('Fill temporary table'),
+                'method'  => 'insertData',
+            ),
+            array(
+                'comment' => __('Clean up variants'),
+                'method'  => 'removeColumns',
+            ),
+            array(
+                'comment' => __('Variants data enrichment'),
+                'method'  => 'addColumns',
+            ),
+            array(
+                'comment' => __('Fill variants data'),
+                'method'  => 'updateData',
             )
         );
 
-    }
+        $stepsAfter = array(
+            array(
+                'comment' => __('Drop temporary table'),
+                'method'  => 'dropTable',
+            ),
+            array(
+                'comment' => __('Clean cache'),
+                'method'  => 'cleanCache',
+            )
+        );
 
+        return array_merge(
+            $stepsBefore,
+            $this->getAdditionnalSteps(),
+            $stepsAfter
+        );
+    }
 }

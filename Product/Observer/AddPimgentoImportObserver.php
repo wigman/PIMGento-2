@@ -2,67 +2,56 @@
 
 namespace Pimgento\Product\Observer;
 
-use \Magento\Framework\Event\ObserverInterface;
-use \Magento\Framework\Event\Observer;
-use \Magento\Framework\Event\ManagerInterface as EventManager;
-use \Magento\Framework\DataObject;
+use Magento\Framework\Event\ObserverInterface;
+use Pimgento\Import\Observer\AbstractAddImportObserver;
 
-class AddPimgentoImportObserver implements ObserverInterface
+class AddPimgentoImportObserver extends AbstractAddImportObserver implements ObserverInterface
 {
-
     /**
-     * System event manager
+     * Get the import code
      *
-     * @var EventManager
+     * @return string
      */
-    protected $eventManager;
-
-    /**
-     * PHP Constructor
-     *
-     * @param EventManager $eventManager
-     */
-    public function __construct(
-        EventManager $eventManager
-    ) {
-        $this->eventManager = $eventManager;
-    }
-
-    /**
-     * Add import to Collection
-     *
-     * @param \Magento\Framework\Event\Observer $observer
-     */
-    public function execute(Observer $observer)
+    protected function getImportCode()
     {
-        /** @var $collection \Pimgento\Import\Model\Import\Collection */
-        $collection = $observer->getEvent()->getCollection();
-
-        $collection->addImport($this->getImportDefinition());
+        return 'product';
     }
 
-    protected function getImportDefinition()
+    /**
+     * Get the import name
+     *
+     * @return string
+     */
+    protected function getImportName()
     {
-        $response = new DataObject();
-        $response->setImportClassname('\Pimgento\Product\Model\Factory\Import');
-
-        $this->eventManager->dispatch(
-            'pimgento_product_import_classname',
-            ['response' => $response]
-        );
-
-        $definition = array(
-            'code'             => 'product',
-            'name'             => __('Products'),
-            'class'            => $response->getImportClassname(),
-            'sort_order'       => 60,
-            'file_is_required' => true,
-            'steps'            => $this->getStepsDefinition()
-        );
-
-        return $definition;
+        return __('Products');
     }
 
+    /**
+     * Get the default import classname
+     *
+     * @return string
+     */
+    protected function getImportDefaultClassname()
+    {
+        return '\Pimgento\Product\Model\Factory\Import';
+    }
+
+    /**
+     * Get the sort order
+     *
+     * @return int
+     */
+    protected function getImportSortOrder()
+    {
+        return 60;
+    }
+
+    /**
+     * get the steps definition
+     *
+     * @return array
+     */
     protected function getStepsDefinition()
     {
         $stepsBefore = array(
@@ -100,14 +89,6 @@ class AddPimgentoImportObserver implements ObserverInterface
             ),
         );
 
-        $responseUpdateEntities = new DataObject();
-        $responseUpdateEntities->setUpdateEntitiesSteps([]);
-
-        $this->eventManager->dispatch(
-            'pimgento_product_import_update_entities_add_steps',
-            ['response' => $responseUpdateEntities]
-        );
-
         $afterEntitiesCreationSteps = array(
             array(
                 'comment' => __('Set values to attributes'),
@@ -143,14 +124,6 @@ class AddPimgentoImportObserver implements ObserverInterface
             ),
         );
 
-        $responseFinalSteps = new DataObject();
-        $responseFinalSteps->setFinalSteps([]);
-
-        $this->eventManager->dispatch(
-            'pimgento_product_import_add_final_steps',
-            ['response' => $responseFinalSteps]
-        );
-
         $stepsAfter = array(
             array(
                 'comment' => __('Drop temporary table'),
@@ -168,9 +141,9 @@ class AddPimgentoImportObserver implements ObserverInterface
 
         return array_merge(
             $stepsBefore,
-            $responseUpdateEntities->getUpdateEntitiesSteps(),
+            $this->getAdditionnalSteps('update_entities_add_steps', 'Update_entities_steps'),
             $afterEntitiesCreationSteps,
-            $responseFinalSteps->getFinalSteps(),
+            $this->getAdditionnalSteps(),
             $stepsAfter
         );
     }
