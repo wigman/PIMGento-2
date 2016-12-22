@@ -21,7 +21,7 @@ With PIMGento, you can import :
 
 ## Requirements
 
-* Akeneo 1.3, 1.4 and 1.5
+* Akeneo PIM >= 1.3 (CE & EE)
 * Akeneo Bundle [EnhancedConnectorBundle](https://github.com/akeneo-labs/EnhancedConnectorBundle/)
 * Magento >= 2.0 CE & EE (Magento EE 2.1 without Staging module)
 * Set local_infile mysql variable to TRUE
