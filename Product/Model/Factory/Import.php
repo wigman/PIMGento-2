@@ -51,7 +51,7 @@ class Import extends Factory
     protected $_allowedTypeId = ['simple', 'virtual'];
 
     /**
-     * @var urlRewriteHelper
+     * @var urlRewriteHelper 
      */
     protected $_urlRewriteHelper;
 
