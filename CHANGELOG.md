@@ -1,6 +1,6 @@
-### [Not Released]
+### [100.1.2] - 2017-01-10
 
-  * add: refactoring all the "AddPimgentoImportObserver" observers to add generic events on classname and additionnal steps
+  * add: add position to media during product import
 
 ### [100.1.1] - 2016-11-03
 
