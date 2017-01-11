@@ -37,7 +37,7 @@ class Import extends Factory
     /**
      * @var \Pimgento\Product\Helper\Config
      */
-    protected $_productHelper;
+    protected $_productHelper; 
 
     /**
      * @var \Pimgento\Product\Helper\Media
@@ -51,7 +51,7 @@ class Import extends Factory
     protected $_allowedTypeId = ['simple', 'virtual'];
 
     /**
-     * @var urlRewriteHelper 
+     * @var urlRewriteHelper
      */
     protected $_urlRewriteHelper;
 
