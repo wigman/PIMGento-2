@@ -91,12 +91,14 @@ class UrlRewrite extends AbstractHelper
         $urlRewriteTable    = $connection->getTableName('url_rewrite');
         $targetPathExpr     = new Expr('CONCAT("catalog/' . $code . '/view/id/", `_entity_id`)');
 
+        $urlSuffix = $this->scopeConfig->getValue('catalog/seo/category_url_suffix');
+        
         // Fill temporary url table
         $values = [
             'entity_id'        => 't._entity_id',
             'entity_type'      => new Expr('"' . $code . '"'),
             'store_id'         => new Expr($storeId),
-            'request_path'     => new Expr('CONCAT(`t`.`' . $column . '`, ".html")'),
+            'request_path'     => new Expr('CONCAT(`t`.`' . $column . '`, "'.$urlSuffix.'")'),
             'target_path'      => $targetPathExpr,
             'old_request_path' => 'u.request_path',
             'url_rewrite_id'   => 'u.url_rewrite_id',
