@@ -37,7 +37,7 @@ class Import extends Factory
     /**
      * @var \Pimgento\Product\Helper\Config
      */
-    protected $_productHelper;
+    protected $_productHelper; 
 
     /**
      * @var \Pimgento\Product\Helper\Media
@@ -1096,12 +1096,13 @@ class Import extends Factory
 
         $this->mediaCreateTmpTables();
         foreach ($fields as $field) {
-            foreach ($field['columns'] as $column) {
+            foreach ($field['columns'] as $position => $column) {
                 if (in_array($column, $tableColumns)) {
-                    $this->mediaPrepareValues($column, $field['attribute_id']);
+                    $this->mediaPrepareValues($column, $field['attribute_id'], $position);
                 }
             }
         }
+
         $this->mediaCleanValues();
         $this->mediaRemoveUnknownFiles();
         $this->mediaCopyFiles();
@@ -1135,7 +1136,6 @@ class Import extends Factory
 
         $connection->dropTable($tableMedia);
 
-
         $table = $connection->newTable($tableMedia);
         $table->addColumn('sku', \Magento\Framework\DB\Ddl\Table::TYPE_TEXT, 255, []);
         $table->addColumn('entity_id', \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER, 10, ['unsigned' => true]);
@@ -1146,6 +1146,7 @@ class Import extends Factory
         $table->addColumn('media_original', \Magento\Framework\DB\Ddl\Table::TYPE_TEXT, 255, []);
         $table->addColumn('media_cleaned', \Magento\Framework\DB\Ddl\Table::TYPE_TEXT, 255, []);
         $table->addColumn('media_value', \Magento\Framework\DB\Ddl\Table::TYPE_TEXT, 255, []);
+        $table->addColumn('position', \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER, 10, ['unsigned' => true]);
         $table->addIndex(
             $tableMedia.'_entity_id',
             ['entity_id'],
@@ -1198,10 +1199,11 @@ class Import extends Factory
      *
      * @param string $column
      * @param int    $attributeId
+     * @param int    $position
      *
      * @return boolean
      */
-    protected function mediaPrepareValues($column, $attributeId)
+    protected function mediaPrepareValues($column, $attributeId, $position)
     {
         $connection = $this->_entities->getResource()->getConnection();
         $tmpTable   = $this->_entities->getTableName($this->getCode());
@@ -1220,13 +1222,14 @@ class Import extends Factory
                     'attribute_id'   => new Expr($attributeId),
                     'store_id'       => new Expr('0'),
                     'media_original' => "t.$column",
+                    'position'       => new Expr($position)
                 ]
             )->where("`t`.`$column` <> ''");
 
         $query = $connection->insertFromSelect(
             $select,
             $tableMedia,
-            ['sku', 'entity_id', 'attribute_id', 'store_id', 'media_original'],
+            ['sku', 'entity_id', 'attribute_id', 'store_id', 'media_original', 'position'],
             AdapterInterface::INSERT_ON_DUPLICATE
         );
 
@@ -1509,7 +1512,7 @@ class Import extends Factory
                     'store_id'  => new Expr('0'),
                     'entity_id' => 'entity_id',
                     'label'     => new Expr("''"),
-                    'position'  => new Expr('0'),
+                    'position'  => 'position',
                 ]
             )->where(
                 't.record_id IS NULL'
