@@ -34,7 +34,8 @@
 }
 
 .image-placeholder {
-    margin-bottom:0.8em
+    margin-bottom:0.8em;
+    margin-top:0;
 }
 
 .image.image-placeholder:before {
