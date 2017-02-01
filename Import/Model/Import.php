@@ -40,7 +40,17 @@ class Import extends DataObject
             throw new Exception(__('Import code is empty'));
         }
 
-        $import = $this->_importCollection->addCodeFilter($code)->loadImport()->getFirstItem();
+        $collection = $this->_importCollection->addCodeFilter($code)->loadImport();
+        $import = $collection->getFirstItem();
+
+        if($import->getCode()!=$code) {
+            foreach ($collection->getItems() as $item) {
+                if ($item->getCode() == $code) {
+                    $import = $item;
+                    break;
+                }
+            }
+        }
 
         if (!$import->hasData()) {
             throw new Exception(__('Import %1 not found', $code));
