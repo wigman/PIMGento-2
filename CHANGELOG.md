@@ -1,5 +1,8 @@
 ### [Not Released]
 
+  * fix: load model import
+  * fix: Use the configured category suffix instead of hardcoded.html
+  * fix: Open up PHP version constraints
   * add: refactoring all the "AddPimgentoImportObserver" observers to add generic events on classname and additionnal steps
 
 ### [100.1.1] - 2016-11-03
