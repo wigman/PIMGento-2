@@ -3,48 +3,97 @@
 namespace Pimgento\Demo\Observer;
 
 use Magento\Framework\Event\ObserverInterface;
-use \Magento\Framework\Event\Observer;
+use Pimgento\Import\Observer\AbstractAddImportObserver;
 
-class AddPimgentoImportObserver implements ObserverInterface
+class AddPimgentoImportObserver extends AbstractAddImportObserver implements ObserverInterface
 {
+    /**
+     * Get the import code
+     *
+     * @return string
+     */
+    protected function getImportCode()
+    {
+        return 'demo';
+    }
 
     /**
-     * Add import to Collection
+     * Get the import name
      *
-     * @param \Magento\Framework\Event\Observer $observer
+     * @return string
      */
-    public function execute(Observer $observer)
+    protected function getImportName()
     {
-        /** @var $collection \Pimgento\Import\Model\Import\Collection */
-        $collection = $observer->getEvent()->getCollection();
+        return __('Demo');
+    }
 
-        $collection->addImport(
+    /**
+     * Get the default import classname
+     *
+     * @return string
+     */
+    protected function getImportDefaultClassname()
+    {
+        return '\Pimgento\Demo\Model\Factory\Import';
+    }
+
+    /**
+     * Get the sort order
+     *
+     * @return int
+     */
+    protected function getImportSortOrder()
+    {
+        return 0;
+    }
+
+    /**
+     * Is a file is required for thie import
+     *
+     * @return bool
+     */
+    protected function isImportFileRequired()
+    {
+        return false;
+    }
+
+    /**
+     * get the steps definition
+     *
+     * @return array
+     */
+    protected function getStepsDefinition()
+    {
+        $stepsBefore = array(
             array(
-                'code'       => 'demo',
-                'name'       => __('Demo'),
-                'class'      => '\Pimgento\Demo\Model\Factory\Import',
-                'sort_order' => 0,
-                'steps' => array(
-                    array(
-                        'comment' => __('First step'),
-                        'method'  => 'firstStep',
-                    ),
-                    array(
-                        // 'comment' => __('Second step'),
-                        'method'  => 'secondStep',
-                    ),
-                    array(
-                        'comment' => __('Third step'),
-                        'method'  => 'thirdStep',
-                    ),
-                    array(
-                        'comment' => __('Fourth step'),
-                        'method'  => 'fourthStep',
-                    )
-                )
+                'comment' => __('First step'),
+                'method'  => 'firstStep',
+            ),
+            array(
+                'comment' => __('Second step'),
+                'method'  => 'secondStep',
+            ),
+            array(
+                'comment' => __('Third step'),
+                'method'  => 'thirdStep',
+            ),
+            array(
+                'comment' => __('Fourth step'),
+                'method'  => 'fourthStep',
             )
         );
 
-    }
+        $stepsAfter = array(
+            array(
+                'comment' => __('Clean step'),
+                'method'  => 'cleanStep',
+            )
+        );
 
+        return array_merge(
+            $stepsBefore,
+            $this->getAdditionnalSteps(),
+            $stepsAfter
+        );
+    }
 }
