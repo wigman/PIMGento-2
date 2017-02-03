@@ -11,6 +11,7 @@ use \Magento\Catalog\Model\Category;
 use \Magento\Framework\App\Cache\TypeListInterface;
 use \Magento\Framework\Module\Manager as moduleManager;
 use \Magento\Framework\App\Config\ScopeConfigInterface as scopeConfig;
+use \Magento\Staging\Model\VersionManager;
 use \Zend_Db_Expr as Expr;
 use \Exception;
 
@@ -229,6 +230,20 @@ class Import extends Factory
         $connection = $this->_entities->getResource()->getConnection();
         $tmpTable = $this->_entities->getTableName($this->getCode());
 
+        if ($connection->isTableExists($connection->getTableName('sequence_catalog_category'))) {
+            $values = array(
+                'sequence_value' => '_entity_id',
+            );
+            $parents = $connection->select()->from($tmpTable, $values);
+            $connection->query(
+                $connection->insertFromSelect(
+                    $parents, $connection->getTableName('sequence_catalog_category'), array_keys($values), 1
+                )
+            );
+        }
+
+        $table = $connection->getTableName('catalog_category_entity');
+
         $values = array(
             'entity_id'        => '_entity_id',
             'attribute_set_id' => new Expr(3),
@@ -239,17 +254,24 @@ class Import extends Factory
             'level'            => 'level',
             'children_count'   => new Expr('0'),
         );
+
+        if ($this->_entities->getColumnIdentifier($table) == 'row_id') {
+            $values['row_id'] = '_entity_id';
+            $values['created_in'] = new Expr(1);
+            $values['updated_in'] = new Expr(VersionManager::MAX_VERSION);
+        }
+
         $parents = $connection->select()->from($tmpTable, $values);
         $connection->query(
             $connection->insertFromSelect(
-                $parents, $connection->getTableName('catalog_category_entity'), array_keys($values), 1
+                $parents, $table, array_keys($values), 1
             )
         );
 
         $values = array(
             'created_at' => new Expr('now()')
         );
-        $connection->update($connection->getTableName('catalog_category_entity'), $values, 'created_at IS NULL');
+        $connection->update($table, $values, 'created_at IS NULL');
     }
 
     /**

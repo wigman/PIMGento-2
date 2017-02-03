@@ -293,6 +293,10 @@ class Entities extends AbstractDb
         $pimgentoTable = $connection->getTableName('pimgento_entities');
         $entityTable   = $connection->getTableName($entityTable);
 
+        if ($entityKey == 'entity_id') {
+            $entityKey = $this->getColumnIdentifier($entityTable);
+        }
+
         /* Update entity_id column from pimgento_entities table */
         $connection->query('
             UPDATE `' . $tableName . '` t
@@ -370,25 +374,28 @@ class Entities extends AbstractDb
         foreach ($values as $code => $value) {
             if (($attribute = $this->getAttribute($code, $entityTypeId))) {
                 if ($attribute['backend_type'] !== 'static') {
+                    $backendType = $attribute['backend_type'];
+
+                    $identifier = $this->getColumnIdentifier($entityTable . '_' . $backendType);
+
                     $select = $connection->select()
                         ->from(
                             $tableName,
                             array(
                                 'attribute_id'   => new Expr($attribute['attribute_id']),
                                 'store_id'       => new Expr($storeId),
-                                'entity_id'      => '_entity_id',
+                                $identifier      => '_entity_id',
                                 'value'          => $value
                             )
                         );
                     if ($connection->tableColumnExists($tableName, $value)) {
                         $select->where('TRIM(`' . $value . '`) <> ?', new Expr('""'));
                     }
-                    $backendType = $attribute['backend_type'];
 
                     $insert = $connection->insertFromSelect(
                         $select,
                         $connection->getTableName($entityTable . '_' . $backendType),
-                        array('attribute_id', 'store_id', 'entity_id', 'value'),
+                        array('attribute_id', 'store_id', $identifier, 'value'),
                         $mode
                     );
                     $connection->query($insert);
@@ -463,6 +470,24 @@ class Entities extends AbstractDb
     protected function formatColumn($column)
     {
         return trim(str_replace(PHP_EOL, '', preg_replace('/\s+/', ' ', trim($column))), '""');
+    }
+
+    /**
+     * Retrieve if row id column exists
+     *
+     * @param string $table
+     * @param string $identifier
+     * @return string
+     */
+    public function getColumnIdentifier($table, $identifier = 'entity_id')
+    {
+        $connection = $this->getConnection();
+
+        if ($connection->tableColumnExists($table, 'row_id')) {
+            $identifier = 'row_id';
+        }
+
+        return $identifier;
     }
 
 }

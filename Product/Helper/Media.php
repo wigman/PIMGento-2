@@ -179,7 +179,7 @@ class Media extends AbstractHelper
      */
     public function isCleanFiles()
     {
-        return $this->imageConfig['clean_files'];
+        return isset($this->imageConfig['clean_files']) ? $this->imageConfig['clean_files'] : 0;
     }
 
     /**
@@ -199,7 +199,7 @@ class Media extends AbstractHelper
      */
     public function cleanFiles()
     {
-        $folder = $this->getImportFolder().'files/';
+        $folder = $this->getImportFolder() . 'files/';
 
         if (is_dir($folder)) {
             $this->delTree($folder);

@@ -188,6 +188,17 @@ class Entities extends AbstractModel implements EntitiesInterface, IdentityInter
     }
 
     /**
+     * Retrieve column identifier
+     *
+     * @param string $table
+     * @return string
+     */
+    public function getColumnIdentifier($table)
+    {
+        return $this->_getResource()->getColumnIdentifier($table);
+    }
+
+    /**
      * Copy column to an other
      *
      * @param string $tableName

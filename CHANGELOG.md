@@ -2,7 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
-## [not-released]
+## [100.2.0] - 2017-02-03
+
+  * add: code refactoring for media and related
+  * add: compatibility with staging modules
+
+## [100.1.2] - 2017-02-01
 
   * fix: load model import
   * fix: Use the configured category suffix instead of hardcoded.html
