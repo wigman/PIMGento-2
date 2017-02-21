@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [100.2.3] - 2017-02-21
+
+  * fix: Integrity constraint violation when importing in a shop with multiple store views
+
 ## [100.2.2] - 2017-02-21
 
   * fix: Avoid error on products without family
