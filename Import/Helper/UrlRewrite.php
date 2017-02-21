@@ -114,6 +114,7 @@ class UrlRewrite extends AbstractHelper
                 't._entity_id = u.entity_id 
                 AND u.entity_type = "' . $code . '" 
                 AND u.redirect_type = 0
+                AND u.store_id = ' . $storeId . '
                 AND u.target_path = ' . $targetPathExpr,
                 array()
             )
