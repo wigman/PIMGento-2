@@ -10,6 +10,7 @@ use \Pimgento\Product\Helper\Config as productHelper;
 use \Pimgento\Product\Helper\Media as mediaHelper;
 use \Pimgento\Product\Model\Factory\Import\Related;
 use \Pimgento\Product\Model\Factory\Import\Media;
+use \Magento\Catalog\Model\Product;
 use \Magento\Catalog\Model\Product\Link as Link;
 use \Magento\Framework\Event\ManagerInterface;
 use \Magento\Framework\App\Cache\TypeListInterface;
@@ -69,6 +70,11 @@ class Import extends Factory
     protected $_related;
 
     /**
+     * @var Product $_product
+     */
+    protected $_product;
+
+    /**
      * PHP Constructor
      *
      * @param \Pimgento\Import\Helper\Config                     $helperConfig
@@ -83,6 +89,7 @@ class Import extends Factory
      * @param urlRewriteHelper                                   $urlRewriteHelper
      * @param Related                                            $related
      * @param Media                                              $media
+     * @param Product                                            $product
      * @param array                                              $data
      */
     public function __construct(
@@ -98,6 +105,7 @@ class Import extends Factory
         urlRewriteHelper $urlRewriteHelper,
         Related $related,
         Media $media,
+        Product $product,
         array $data = []
     ) {
         parent::__construct($helperConfig, $eventManager, $moduleManager, $scopeConfig, $data);
@@ -110,6 +118,7 @@ class Import extends Factory
         $this->_urlRewriteHelper = $urlRewriteHelper;
         $this->_related = $related;
         $this->_media = $media;
+        $this->_product = $product;
     }
 
     /**
@@ -348,6 +357,25 @@ class Import extends Factory
 
             $connection->query(
                 $connection->updateFromSelect($families, array('p' => $tmpTable))
+            );
+
+            $noFamily = $connection->fetchOne(
+                $connection->select()
+                    ->from($tmpTable, array('COUNT(*)'))
+                    ->where('_attribute_set_id = ?', 0)
+            );
+
+            if ($noFamily) {
+                $this->setStatus(false);
+                $this->setMessage(
+                    __('Warning: %1 product(s) without family. Please try to import families.', $noFamily)
+                );
+            }
+
+            $connection->update(
+                $tmpTable,
+                array('_attribute_set_id' => $this->_product->getDefaultAttributeSetId()),
+                array('_attribute_set_id = ?' => 0)
             );
         }
     }
