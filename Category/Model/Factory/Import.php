@@ -116,6 +116,8 @@ class Import extends Factory
 
         $stores = $this->_helperConfig->getStores('lang');
 
+        $keys = [];
+
         foreach ($stores as $local => $affected) {
             if ($connection->tableColumnExists($tmpTable, 'label-' . $local)) {
 
@@ -123,14 +125,22 @@ class Import extends Factory
 
                 $query = $connection->query(
                     $connection->select()
-                        ->from($tmpTable, array('entity_id' => '_entity_id', 'name' => 'label-' . $local))
+                        ->from($tmpTable, ['entity_id' => '_entity_id', 'name' => 'label-' . $local])
                 );
 
                 while (($row = $query->fetch())) {
                     $urlKey = $this->_category->formatUrlKey($row['name']);
 
+                    $finalKey = $urlKey;
+                    $increment = 1;
+                    while (in_array($finalKey, $keys)) {
+                        $finalKey = $urlKey . '-' . $increment++;
+                    }
+
+                    $keys[] = $finalKey;
+
                     $connection->update(
-                        $tmpTable, array('url_key-' . $local => $urlKey), array('_entity_id = ?' => $row['entity_id'])
+                        $tmpTable, ['url_key-' . $local => $finalKey], ['_entity_id = ?' => $row['entity_id']]
                     );
                 }
             }
